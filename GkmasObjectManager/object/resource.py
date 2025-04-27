@@ -7,8 +7,6 @@ from ..log import Logger
 from ..const import (
     md5sum,  # dispreferred, but introduces redundancy otherwise
     PATH_ARGTYPE,
-    RESOURCE_INFO_FIELDS,
-    GKMAS_VERSION,
     DEFAULT_DOWNLOAD_PATH,
     GKMAS_OBJECT_SERVER,
     CHARACTER_ABBREVS,
@@ -58,17 +56,12 @@ class GkmasResource:
 
         Args:
             info (dict): An info dictionary, extracted from protobuf.
-                Must contain the following keys: id, name, objectName, size, md5, state.
         """
 
-        for field in RESOURCE_INFO_FIELDS:
-            if field != "uploadVersionId":
-                setattr(self, field, info[field])
-            else:
-                setattr(self, field, info.get(field, GKMAS_VERSION))
-                # this might be missing in older manifests
+        self._fields = list(info.keys())
+        for field in self._fields:
+            setattr(self, field, info[field])
 
-        # 'self.state' unused, but retained for compatibility
         self._idname = f"RS[{self.id:05}] '{self.name}'"
 
         # 'self._media' holds a class from media/ that implements
@@ -85,7 +78,7 @@ class GkmasResource:
 
     def _get_canon_repr(self):
         # this format retains the order of fields
-        return {field: getattr(self, field) for field in RESOURCE_INFO_FIELDS}
+        return {field: getattr(self, field) for field in self._fields}
 
     def _get_media(self):
         """

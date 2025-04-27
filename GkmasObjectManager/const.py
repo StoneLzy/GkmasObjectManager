@@ -48,20 +48,11 @@ GKMAS_ONLINEPDB_KEY_PC = sha256sum("x5HFaJCJywDyuButLM0f".encode("utf-8"))
 GKMAS_OCTOCACHE_KEY = md5sum("1nuv9td1bw1udefk".encode("utf-8"))
 GKMAS_OCTOCACHE_IV = md5sum("LvAUtf+tnz".encode("utf-8"))
 
-# manifest diff
-OBJLIST_ID_FIELD = "id"
-OBJLIST_NAME_FIELD = "name"
-
 # manifest export
 CSV_COLUMNS = ["objectName", "md5", "name", "size", "state"]
 
 # manifest download dispatcher
 DEFAULT_DOWNLOAD_PATH = "objects/"
-
-# object instantiation
-RESOURCE_INFO_FIELDS_HEAD = ["id", "name", "size"]
-RESOURCE_INFO_FIELDS_TAIL = ["state", "md5", "objectName", "uploadVersionId"]
-RESOURCE_INFO_FIELDS = RESOURCE_INFO_FIELDS_HEAD + RESOURCE_INFO_FIELDS_TAIL
 
 # object download
 GKMAS_OBJECT_SERVER = "https://object.asset.game-gakuen-idolmaster.jp/"
