@@ -8,7 +8,6 @@ from ..const import (
     md5sum,  # dispreferred, but introduces redundancy otherwise
     PATH_ARGTYPE,
     DEFAULT_DOWNLOAD_PATH,
-    GKMAS_OBJECT_SERVER,
     CHARACTER_ABBREVS,
 )
 
@@ -49,13 +48,15 @@ class GkmasResource:
             Downloads the resource to the specified path.
     """
 
-    def __init__(self, info: dict):
+    def __init__(self, info: dict, url_template: str):
         """
         Initializes a resource with the given information.
         Usually called from GkmasManifest.
 
         Args:
             info (dict): An info dictionary, extracted from protobuf.
+            url_template (str): URL template for downloading the resource.
+                {o} will be replaced with self.objectName.
         """
 
         self._fields = list(info.keys())
@@ -63,6 +64,7 @@ class GkmasResource:
             setattr(self, field, info[field])
 
         self._idname = f"RS[{self.id:05}] '{self.name}'"
+        self._url = url_template.format(o=self.objectName)
 
         # 'self._media' holds a class from media/ that implements
         # format-specific extraction, if applicable.
@@ -183,8 +185,7 @@ class GkmasResource:
         on HTTP status code, size, and MD5 hash. Returns the resource as raw bytes.
         """
 
-        url = urljoin(GKMAS_OBJECT_SERVER, self.objectName)
-        response = requests.get(url)
+        response = requests.get(self._url)
 
         # We're being strict here by aborting the download process
         # if any of the sanity checks fail, in order to avoid corrupted output.

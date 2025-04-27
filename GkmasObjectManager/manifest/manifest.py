@@ -84,10 +84,12 @@ class GkmasManifest:
             self.assetbundles = GkmasObjectList(
                 jdict.get("assetBundleList", []),  # might be empty in recent diffs
                 GkmasAssetBundle,
+                jdict["urlFormat"],
             )
             self.resources = GkmasObjectList(
                 jdict.get("resourceList", []),  # same as above ^
                 GkmasResource,
+                jdict["urlFormat"],
             )
         except TypeError:  # instantiate from diff, skip type conversion
             self.revision = jdict["revision"]

@@ -43,16 +43,18 @@ class GkmasAssetBundle(GkmasResource):
             Also extracts a single image from each bundle with type 'img'.
     """
 
-    def __init__(self, info: dict):
+    def __init__(self, info: dict, url_template: str):
         """
         Initializes an assetbundle with the given information.
         Usually called from GkmasManifest.
 
         Args:
             info (dict): An info dictionary, extracted from protobuf.
+            url_template (str): URL template for downloading the assetbundle.
+                {o} will be replaced with self.objectName.
         """
 
-        super().__init__(info)
+        super().__init__(info, url_template)
         self._idname = f"AB[{self.id:05}] '{self.name}'"
 
     def __repr__(self):

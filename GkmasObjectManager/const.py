@@ -55,7 +55,6 @@ CSV_COLUMNS = ["objectName", "md5", "name", "size", "state"]
 DEFAULT_DOWNLOAD_PATH = "objects/"
 
 # object download
-GKMAS_OBJECT_SERVER = "https://object.asset.game-gakuen-idolmaster.jp/"
 CHARACTER_ABBREVS = [
     "hski",  # Hanami SaKI
     "ttmr",  # Tsukimura TeMaRi
