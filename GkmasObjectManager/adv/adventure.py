@@ -3,7 +3,7 @@ adv/adventure.py
 Adventure (story script) plugin for GkmasResource.
 """
 
-from ..log import Logger
+from ..utils import Logger
 from ..media import GkmasDummyMedia
 from .parser import GkadvCommandParser
 

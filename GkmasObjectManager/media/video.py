@@ -3,7 +3,7 @@ media/video.py
 USM video conversion plugin for GkmasResource.
 """
 
-from ..log import Logger
+from ..utils import Logger
 from .dummy import GkmasDummyMedia
 
 from pathlib import Path

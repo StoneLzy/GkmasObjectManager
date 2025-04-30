@@ -4,7 +4,7 @@ AWB/ACB audio conversion plugin for GkmasResource,
 and MP3 audio handler for GkmasResource.
 """
 
-from ..log import Logger
+from ..utils import Logger
 from .dummy import GkmasDummyMedia
 
 import platform

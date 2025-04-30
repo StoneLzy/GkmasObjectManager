@@ -4,7 +4,7 @@ Unity image conversion plugin for GkmasAssetBundle,
 and PNG image handler for GkmasResource.
 """
 
-from ..log import Logger
+from ..utils import Logger
 from ..const import IMAGE_RESIZE_ARGTYPE
 from .dummy import GkmasDummyMedia
 

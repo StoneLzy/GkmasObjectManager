@@ -1,6 +1,6 @@
 """
-log.py
-Rich console logger.
+utils.py
+General-purpose utilities: hashing, rich console logger.
 """
 
 from rich.console import Console

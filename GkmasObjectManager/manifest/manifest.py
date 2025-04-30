@@ -4,7 +4,7 @@ Manifest decryption, exporting, and object downloading.
 """
 
 from ..object import GkmasAssetBundle, GkmasResource
-from ..log import Logger
+from ..utils import Logger
 from ..const import (
     PATH_ARGTYPE,
     CSV_COLUMNS,

@@ -3,7 +3,7 @@ resource.py
 General-purpose resource downloading.
 """
 
-from ..log import Logger
+from ..utils import Logger
 from ..const import (
     md5sum,  # dispreferred, but introduces redundancy otherwise
     PATH_ARGTYPE,

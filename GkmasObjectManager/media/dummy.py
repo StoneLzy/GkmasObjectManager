@@ -5,7 +5,7 @@ Serves as a base class & template for other media plugins,
 as well as a fallback for unknown media types.
 """
 
-from ..log import Logger
+from ..utils import Logger
 
 import os
 import base64

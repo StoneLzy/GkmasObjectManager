@@ -12,7 +12,7 @@ from datetime import datetime
 from tqdm import tqdm
 
 import GkmasObjectManager as gom
-from GkmasObjectManager.log import Logger
+from GkmasObjectManager.utils import Logger
 from GkmasObjectManager.object import GkmasResource
 
 
