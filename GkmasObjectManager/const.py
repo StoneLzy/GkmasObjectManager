@@ -3,22 +3,11 @@ const.py
 Module-wide constants (macro equivalents).
 """
 
+from .utils import sha256sum, md5sum
+
 from pathlib import Path
 from urllib.parse import urljoin
 from typing import Union, Tuple
-from cryptography.hazmat.primitives import hashes
-
-
-def sha256sum(data: bytes) -> bytes:
-    digest = hashes.Hash(hashes.SHA256())
-    digest.update(data)
-    return digest.finalize()
-
-
-def md5sum(data: bytes) -> bytes:
-    digest = hashes.Hash(hashes.MD5())
-    digest.update(data)
-    return digest.finalize()
 
 
 # argument type hints

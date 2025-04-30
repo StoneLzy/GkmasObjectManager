@@ -4,6 +4,19 @@ General-purpose utilities: hashing, rich console logger.
 """
 
 from rich.console import Console
+from cryptography.hazmat.primitives import hashes
+
+
+def sha256sum(data: bytes) -> bytes:
+    digest = hashes.Hash(hashes.SHA256())
+    digest.update(data)
+    return digest.finalize()
+
+
+def md5sum(data: bytes) -> bytes:
+    digest = hashes.Hash(hashes.MD5())
+    digest.update(data)
+    return digest.finalize()
 
 
 class Logger(Console):

@@ -3,9 +3,8 @@ resource.py
 General-purpose resource downloading.
 """
 
-from ..utils import Logger
+from ..utils import Logger, md5sum
 from ..const import (
-    md5sum,  # dispreferred, but introduces redundancy otherwise
     PATH_ARGTYPE,
     DEFAULT_DOWNLOAD_PATH,
     CHARACTER_ABBREVS,
