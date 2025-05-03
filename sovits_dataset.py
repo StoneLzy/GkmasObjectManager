@@ -1,20 +1,18 @@
-import re
 import json
+import re
 import shutil
 import subprocess
 import tempfile
-
-from pathlib import Path
 from argparse import ArgumentParser
-
-from zipfile import ZipFile, ZipInfo
 from datetime import datetime
+from pathlib import Path
+from zipfile import ZipFile, ZipInfo
+
 from tqdm import tqdm
 
 import GkmasObjectManager as gom
-from GkmasObjectManager.utils import Logger
 from GkmasObjectManager.object import GkmasResource
-
+from GkmasObjectManager.utils import Logger
 
 logger = Logger()
 logger.info("Fetching manifest...")

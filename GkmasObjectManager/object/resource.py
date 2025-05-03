@@ -3,25 +3,20 @@ resource.py
 General-purpose resource downloading.
 """
 
-from ..utils import Logger, md5sum
-from ..const import (
-    PATH_ARGTYPE,
-    DEFAULT_DOWNLOAD_PATH,
-    CHARACTER_ABBREVS,
-)
-
-from ..media import GkmasDummyMedia
-from ..media.image import GkmasImage
-from ..media.audio import GkmasAudio, GkmasAWBAudio, GkmasACBAudio
-from ..media.video import GkmasUSMVideo
-from ..adv import GkmasAdventure
-
 import re
-import requests
 from pathlib import Path
-from urllib.parse import urljoin
 from typing import Tuple
+from urllib.parse import urljoin
 
+import requests
+
+from ..adv import GkmasAdventure
+from ..const import CHARACTER_ABBREVS, DEFAULT_DOWNLOAD_PATH, PATH_ARGTYPE
+from ..media import GkmasDummyMedia
+from ..media.audio import GkmasACBAudio, GkmasAudio, GkmasAWBAudio
+from ..media.image import GkmasImage
+from ..media.video import GkmasUSMVideo
+from ..utils import Logger, md5sum
 
 logger = Logger()
 

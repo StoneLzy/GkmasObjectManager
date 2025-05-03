@@ -3,13 +3,12 @@ media/video.py
 USM video conversion plugin for GkmasResource.
 """
 
-from ..utils import Logger
-from .dummy import GkmasDummyMedia
-
 from pathlib import Path
 
 import ffmpeg
 
+from ..utils import Logger
+from .dummy import GkmasDummyMedia
 
 logger = Logger()
 

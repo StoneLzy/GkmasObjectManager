@@ -3,27 +3,21 @@ manifest.py
 Manifest decryption, exporting, and object downloading.
 """
 
-from ..object import GkmasAssetBundle, GkmasResource
-from ..utils import Logger
-from ..const import (
-    PATH_ARGTYPE,
-    CSV_COLUMNS,
-    DEFAULT_DOWNLOAD_PATH,
-    CHARACTER_ABBREVS,
-)
-
-from .revision import GkmasManifestRevision
-from .octodb_pb2 import dict2pdbytes
-from .listing import GkmasObjectList
-
-import re
-import json
-import yaml
 import asyncio
+import json
+import re
 import subprocess
-import pandas as pd
 from pathlib import Path
 
+import pandas as pd
+import yaml
+
+from ..const import CHARACTER_ABBREVS, CSV_COLUMNS, DEFAULT_DOWNLOAD_PATH, PATH_ARGTYPE
+from ..object import GkmasAssetBundle, GkmasResource
+from ..utils import Logger
+from .listing import GkmasObjectList
+from .octodb_pb2 import dict2pdbytes
+from .revision import GkmasManifestRevision
 
 # The logger would better be a global variable in the
 # modular __init__.py, but Python won't allow me to

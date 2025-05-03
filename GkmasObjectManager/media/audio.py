@@ -4,20 +4,19 @@ AWB/ACB audio conversion plugin for GkmasResource,
 and MP3 audio handler for GkmasResource.
 """
 
-from ..utils import Logger
-from .dummy import GkmasDummyMedia
-
 import platform
-import tempfile
 import subprocess
+import tempfile
+from datetime import datetime
 from io import BytesIO
 from pathlib import Path
+from zipfile import ZipFile, ZipInfo
 
 import UnityPy
 from pydub import AudioSegment
-from zipfile import ZipFile, ZipInfo
-from datetime import datetime
 
+from ..utils import Logger
+from .dummy import GkmasDummyMedia
 
 logger = Logger()
 

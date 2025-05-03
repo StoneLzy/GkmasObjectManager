@@ -5,16 +5,14 @@ Serves as a base class & template for other media plugins,
 as well as a fallback for unknown media types.
 """
 
-from ..utils import Logger
-
-import os
 import base64
+import os
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Tuple
-
 from zipfile import ZipFile
-from email.utils import parsedate_to_datetime
 
+from ..utils import Logger
 
 logger = Logger()
 

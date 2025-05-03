@@ -3,8 +3,8 @@ adv/parser.py
 Parsing raw adventure strings into a dictionary of commands.
 """
 
-import re
 import json
+import re
 
 
 # more like a collection of functions than a class

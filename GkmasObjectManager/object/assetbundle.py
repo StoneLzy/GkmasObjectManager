@@ -3,20 +3,15 @@ assetbundle.py
 Unity asset bundle downloading, deobfuscation, and media extraction.
 """
 
-from ..utils import Logger
-from ..const import (
-    PATH_ARGTYPE,
-    UNITY_SIGNATURE,
-)
-
-from .resource import GkmasResource
-from .deobfuscate import GkmasAssetBundleDeobfuscator
-from ..media import GkmasDummyMedia
-from ..media.image import GkmasUnityImage
-from ..media.audio import GkmasUnityAudio
-
 from pathlib import Path
 
+from ..const import PATH_ARGTYPE, UNITY_SIGNATURE
+from ..media import GkmasDummyMedia
+from ..media.audio import GkmasUnityAudio
+from ..media.image import GkmasUnityImage
+from ..utils import Logger
+from .deobfuscate import GkmasAssetBundleDeobfuscator
+from .resource import GkmasResource
 
 logger = Logger()
 

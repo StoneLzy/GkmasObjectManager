@@ -3,8 +3,8 @@ utils.py
 General-purpose utilities: hashing, rich console logger.
 """
 
-from rich.console import Console
 from cryptography.hazmat.primitives import hashes
+from rich.console import Console
 
 
 def sha256sum(data: bytes) -> bytes:

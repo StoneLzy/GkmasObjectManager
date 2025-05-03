@@ -3,12 +3,11 @@ const.py
 Module-wide constants (macro equivalents).
 """
 
-from .utils import sha256sum, md5sum
-
 from pathlib import Path
+from typing import Tuple, Union
 from urllib.parse import urljoin
-from typing import Union, Tuple
 
+from .utils import md5sum, sha256sum
 
 # argument type hints
 PATH_ARGTYPE = Union[str, Path]

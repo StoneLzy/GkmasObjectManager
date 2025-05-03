@@ -4,10 +4,10 @@ Script to fetch latest manifest and diff from server,
 compatible with 'Update Manifest' workflow.
 """
 
-import GkmasObjectManager as gom
-
 import sys
 from pathlib import Path
+
+import GkmasObjectManager as gom
 
 
 def do_update(dir: str, pc: bool = False) -> bool:

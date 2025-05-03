@@ -1,22 +1,22 @@
-from ..const import (
-    PATH_ARGTYPE,
-    GKMAS_API_URL,
-    GKMAS_API_URL_PC,
-    GKMAS_API_HEADER,
-    GKMAS_ONLINEPDB_KEY,
-    GKMAS_ONLINEPDB_KEY_PC,
-    GKMAS_OCTOCACHE_KEY,
-    GKMAS_OCTOCACHE_IV,
-)
-
-from .manifest import GkmasManifest
-from .decrypt import AESCBCDecryptor
-from .octodb_pb2 import pdbytes2dict
-
 import json
-import requests
 from pathlib import Path
 from urllib.parse import urljoin
+
+import requests
+
+from ..const import (
+    GKMAS_API_HEADER,
+    GKMAS_API_URL,
+    GKMAS_API_URL_PC,
+    GKMAS_OCTOCACHE_IV,
+    GKMAS_OCTOCACHE_KEY,
+    GKMAS_ONLINEPDB_KEY,
+    GKMAS_ONLINEPDB_KEY_PC,
+    PATH_ARGTYPE,
+)
+from .decrypt import AESCBCDecryptor
+from .manifest import GkmasManifest
+from .octodb_pb2 import pdbytes2dict
 
 
 def fetch(base_revision: int = 0, pc: bool = False) -> GkmasManifest:
