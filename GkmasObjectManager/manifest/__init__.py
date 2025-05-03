@@ -1,3 +1,9 @@
+"""
+manifest/
+Manifest (object database) management.
+Entry point of the GkmasObjectManager package.
+"""
+
 import json
 from pathlib import Path
 from urllib.parse import urljoin

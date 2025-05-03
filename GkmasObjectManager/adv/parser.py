@@ -9,6 +9,7 @@ import re
 
 # more like a collection of functions than a class
 class GkadvCommandParser:
+    """Collection of functions to parse adventure strings."""
 
     def _parse_structure(self, string: str) -> dict:
         # assumes NO [] around the string,
@@ -59,6 +60,7 @@ class GkadvCommandParser:
         return cmd
 
     def process(self, string: str) -> dict:
+        """Processes a raw adventure string into a dictionary of commands."""
         string = string.strip()  # remove trailing newlines
         assert string.startswith("[") and string.endswith("]")  # initial check
         return self._parse_structure(string[1:-1])

@@ -34,6 +34,15 @@ class GkmasDummyMedia:
         raise NotImplementedError  # TO BE OVERRIDDEN
 
     def get_data(self, **kwargs) -> Tuple[bytes, str]:
+        """
+        Requests data of the desired format.
+
+        Args:
+            {mimetype}_format (str): Desired format for the media type.
+
+        Returns:
+            Tuple[bytes, str]: A tuple of (media data, mimetype).
+        """
 
         fmt = kwargs.get(
             f"{self.mimetype}_format",
@@ -73,6 +82,15 @@ class GkmasDummyMedia:
         return f"data:{mimetype};base64,{base64.b64encode(data).decode()}"
 
     def export(self, path: Path, **kwargs):
+        """
+        Exports the media to the specified path.
+
+        Args:
+            path (Path): The path to export the media to.
+            convert_{mimetype} (bool): Whether to enable media conversion.
+            {mimetype}_format (str): Desired format for the media type.
+        """
+
         # not overriding self.mimetype indicates unhandled media type
         if self.mimetype and kwargs.get(f"convert_{self.mimetype}", True):
             try:

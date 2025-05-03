@@ -70,7 +70,7 @@ class GkmasManifest:
         if base_revision != 0:  # leave negative base handling to the Revision class
             if base_revision != revision[1] != 0:  # equivalent to a 2-AND
                 logger.warning(
-                    f"Overriding detected base revision v{revision[1]} with specified revision v{base_revision}."
+                    f"Overriding detected base revision v{revision[1]} with specified v{base_revision}."
                 )
             revision = (revision[0], base_revision)  # proceed anyway
 
@@ -280,7 +280,7 @@ class GkmasManifest:
             *criteria (str): Regex patterns of assetbundle/resource names.
             path (Union[str, Path]) = DEFAULT_DOWNLOAD_PATH: A directory to which the objects are downloaded.
                 *WARNING: Behavior is undefined if the path points to an definite file (with extension).*
-            categorize (bool) = True: Whether to categorize the downloaded objects into subdirectories.
+            categorize (bool) = True: Whether to categorize downloaded objects into subdirectories.
                 If False, all objects are downloaded to the specified 'path' in a flat structure.
             convert_image (bool) = True: Whether to extract images from assetbundles of type 'img'.
                 If False, 'img_.*\\.unity3d' are downloaded as is.
@@ -289,7 +289,7 @@ class GkmasManifest:
                 Valid options are checked by PIL.Image.save() and are not enumerated.
             image_resize (Union[None, str, Tuple[int, int]]) = None: Image resizing argument.
                 If None, images are downloaded as is.
-                If str, string must contain exactly one ':' and images are resized to the specified ratio.
+                If str (must contain exactly one ':'), image is resized to the specified ratio.
                 If Tuple[int, int], images are resized to the specified exact dimensions.
         """
 

@@ -33,7 +33,7 @@ class GkmasImage(GkmasDummyMedia):
         Args:
             image_resize (Union[None, str, Tuple[int, int]]) = None: Image resizing argument.
                 If None, image is downloaded as is.
-                If str, string must contain exactly one ':' and image is resized to the specified ratio.
+                If str (must contain exactly one ':'), image is resized to the specified ratio.
                 If Tuple[int, int], image is resized to the specified exact dimensions.
         """
 
