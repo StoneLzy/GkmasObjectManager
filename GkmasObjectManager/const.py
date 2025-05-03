@@ -4,20 +4,19 @@ Module-wide constants (macro equivalents).
 """
 
 from pathlib import Path
-from typing import Tuple, Union
+from typing import Union
 from urllib.parse import urljoin
 
 from .utils import md5sum, sha256sum
 
 # argument type hints
 PATH_ARGTYPE = Union[str, Path]
-IMAGE_RESIZE_ARGTYPE = Union[None, str, Tuple[int, int]]
 
 # manifest request
 GKMAS_APPID = 400
 GKMAS_VERSION = 205000
 GKMAS_VERSION_PC = 705000
-GKMAS_API_SERVER = f"https://api.asset.game-gakuen-idolmaster.jp/"
+GKMAS_API_SERVER = "https://api.asset.game-gakuen-idolmaster.jp/"
 GKMAS_API_URL = urljoin(
     GKMAS_API_SERVER, f"v2/pub/a/{GKMAS_APPID}/v/{GKMAS_VERSION}/list/"
 )

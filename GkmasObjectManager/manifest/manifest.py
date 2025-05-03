@@ -11,6 +11,7 @@ from pathlib import Path
 
 import pandas as pd
 import yaml
+from google.protobuf.json_format import ParseError
 
 from ..const import CHARACTER_ABBREVS, CSV_COLUMNS, DEFAULT_DOWNLOAD_PATH, PATH_ARGTYPE
 from ..object import GkmasAssetBundle, GkmasResource
@@ -210,7 +211,7 @@ class GkmasManifest:
         try:
             path.write_bytes(dict2pdbytes(jdict))
             logger.success(f"ProtoDB has been written into {path}")
-        except:
+        except ParseError:
             logger.error(f"Failed to write ProtoDB into {path}")
 
     def _export_json(self, path: Path):
@@ -224,7 +225,7 @@ class GkmasManifest:
         try:
             path.write_text(json.dumps(self._get_canon_repr(), indent=4))
             logger.success(f"JSON has been written into {path}")
-        except:
+        except TypeError:  # non-JSON-serializable object in dict
             logger.error(f"Failed to write JSON into {path}")
 
     def _export_csv(self, path: Path):
@@ -317,7 +318,7 @@ class GkmasManifest:
 
         # READ PRESET
 
-        with open(preset_filename, "r") as f:
+        with open(preset_filename, "r", encoding="utf-8") as f:
             preset = yaml.safe_load(f)
 
         root = preset.get("root", DEFAULT_DOWNLOAD_PATH)

@@ -6,7 +6,6 @@ General-purpose resource downloading.
 import re
 from pathlib import Path
 from typing import Tuple
-from urllib.parse import urljoin
 
 import requests
 
@@ -179,17 +178,13 @@ class GkmasResource:
         on HTTP status code, size, and MD5 hash. Returns the resource as raw bytes.
         """
 
-        response = requests.get(self._url)
+        response = requests.get(self._url, timeout=10)
+        response.raise_for_status()
 
         # We're being strict here by aborting the download process
         # if any of the sanity checks fail, in order to avoid corrupted output.
         # The client can always retry; just ignore the "file already exists" warnings.
         # Note: Returning empty bytes is unnecessary, since logger.error() raises an exception.
-
-        if response.status_code != requests.codes.ok:
-            logger.error(
-                f"{self._idname} request failed with {response.status_code}: {response.reason}"
-            )
 
         if len(response.content) != self.size:
             logger.error(f"{self._idname} has invalid size")

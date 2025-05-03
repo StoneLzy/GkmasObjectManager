@@ -5,13 +5,11 @@ and PNG image handler for GkmasResource.
 """
 
 from io import BytesIO
-from pathlib import Path
 from typing import Tuple, Union
 
 import UnityPy
 from PIL import Image
 
-from ..const import IMAGE_RESIZE_ARGTYPE
 from ..utils import Logger
 from .dummy import GkmasDummyMedia
 
@@ -41,16 +39,18 @@ class GkmasImage(GkmasDummyMedia):
 
         image_resize = kwargs.get("image_resize", None)
         if image_resize:
-            if type(image_resize) == str:
+            if isinstance(image_resize, str):
                 image_resize = self._determine_new_size(img.size, ratio=image_resize)
             img = img.resize(image_resize, Image.LANCZOS)
 
         io = BytesIO()
         try:
-            img.save(io, format=self.converted_format.upper(), quality=100)
+            img.save(
+                io, format=self.converted_format.upper(), quality=100, optimize=True
+            )
         except OSError:  # cannot write mode RGBA as {self.converted_format}
             img.convert("RGB").save(
-                io, format=self.converted_format.upper(), quality=100
+                io, format=self.converted_format.upper(), quality=100, optimize=True
             )
 
         return io.getvalue()

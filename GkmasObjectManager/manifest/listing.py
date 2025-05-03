@@ -67,23 +67,24 @@ class GkmasObjectList:
         assert self.base_class == other.base_class
         canon_reprs = []
         for entry in self:
+            this_repr = entry._get_canon_repr()
             try:
-                this_repr = entry._get_canon_repr()
                 other_repr = other[entry.name]._get_canon_repr()
             except KeyError:
                 canon_reprs.append(this_repr)
-                continue
             else:
                 if this_repr != other_repr:
                     canon_reprs.append(this_repr)
-        return GkmasObjectList(canon_reprs, self.base_class)
+        return GkmasObjectList(canon_reprs, self.base_class, self.url_template)
 
     def __add__(self, other: "GkmasObjectList") -> "GkmasObjectList":
         # 'other' is assumed to be newer, since revision is not accessible here
         assert self.base_class == other.base_class
         mapped = {entry["id"]: entry for entry in self._get_canon_repr()}
         mapped.update({entry["id"]: entry for entry in other._get_canon_repr()})  # hack
-        return GkmasObjectList(list(mapped.values()), self.base_class)
+        return GkmasObjectList(
+            list(mapped.values()), self.base_class, self.url_template
+        )
 
     def _get_canon_repr(self):
         """

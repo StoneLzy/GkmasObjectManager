@@ -3,8 +3,6 @@ media/video.py
 USM video conversion plugin for GkmasResource.
 """
 
-from pathlib import Path
-
 import ffmpeg
 
 from ..utils import Logger
