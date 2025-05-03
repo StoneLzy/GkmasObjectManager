@@ -5,7 +5,6 @@ Serves as a base class & template for other media plugins,
 as well as a fallback for unknown media types.
 """
 
-import base64
 import os
 from email.utils import parsedate_to_datetime
 from pathlib import Path
@@ -76,10 +75,6 @@ class GkmasDummyMedia:
                 # by explicitly specifying 'None_format' as some random value
             )
         )
-
-    def get_embed_url(self, **kwargs) -> str:
-        data, mimetype = self.get_data(**kwargs)
-        return f"data:{mimetype};base64,{base64.b64encode(data).decode()}"
 
     def export(self, path: Path, **kwargs):
         """
