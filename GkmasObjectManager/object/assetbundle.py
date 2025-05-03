@@ -5,7 +5,7 @@ Unity asset bundle downloading, deobfuscation, and media extraction.
 
 from pathlib import Path
 
-from ..const import PATH_ARGTYPE, UNITY_SIGNATURE
+from ..const import UNITY_SIGNATURE, PathArgtype
 from ..media import GkmasDummyMedia
 from ..media.audio import GkmasUnityAudio
 from ..media.image import GkmasUnityImage
@@ -73,7 +73,7 @@ class GkmasAssetBundle(GkmasResource):
 
         return self._media
 
-    def _download_path(self, path: PATH_ARGTYPE, categorize: bool) -> Path:
+    def _download_path(self, path: PathArgtype, categorize: bool) -> Path:
         """
         [INTERNAL] Refines the download path based on user input.
         Inherited from GkmasResource, but imposes a '.unity3d' suffix.

@@ -19,7 +19,7 @@ from ..const import (
     GKMAS_OCTOCACHE_KEY,
     GKMAS_ONLINEPDB_KEY,
     GKMAS_ONLINEPDB_KEY_PC,
-    PATH_ARGTYPE,
+    PathArgtype,
 )
 from .decrypt import AESCBCDecryptor
 from .manifest import GkmasManifest
@@ -48,7 +48,7 @@ def fetch(base_revision: int = 0, pc: bool = False) -> GkmasManifest:
     return GkmasManifest(pdbytes2dict(dec), base_revision=base_revision)
 
 
-def load(src: PATH_ARGTYPE, base_revision: int = 0) -> GkmasManifest:
+def load(src: PathArgtype, base_revision: int = 0) -> GkmasManifest:
     """
     Initializes a manifest from the given offline source.
     The protobuf referred to can be either encrypted or not.

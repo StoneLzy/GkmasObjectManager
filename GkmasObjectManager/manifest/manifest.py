@@ -13,7 +13,7 @@ import pandas as pd
 import yaml
 from google.protobuf.json_format import ParseError
 
-from ..const import CHARACTER_ABBREVS, CSV_COLUMNS, DEFAULT_DOWNLOAD_PATH, PATH_ARGTYPE
+from ..const import CHARACTER_ABBREVS, CSV_COLUMNS, DEFAULT_DOWNLOAD_PATH, PathArgtype
 from ..object import GkmasAssetBundle, GkmasResource
 from ..utils import Logger
 from .listing import GkmasObjectList
@@ -155,7 +155,7 @@ class GkmasManifest:
 
     # ------------ EXPORT ------------ #
 
-    def export(self, path: PATH_ARGTYPE, format: str = "infer"):
+    def export(self, path: PathArgtype, format: str = "infer"):
         """
         Exports the manifest as ProtoDB, JSON, and/or CSV to the specified path.
         This is a dispatcher method.

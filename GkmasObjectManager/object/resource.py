@@ -10,7 +10,7 @@ from typing import Tuple
 import requests
 
 from ..adv import GkmasAdventure
-from ..const import CHARACTER_ABBREVS, DEFAULT_DOWNLOAD_PATH, PATH_ARGTYPE
+from ..const import CHARACTER_ABBREVS, DEFAULT_DOWNLOAD_PATH, PathArgtype
 from ..media import GkmasDummyMedia
 from ..media.audio import GkmasACBAudio, GkmasAudio, GkmasAWBAudio
 from ..media.image import GkmasImage
@@ -117,7 +117,7 @@ class GkmasResource:
 
     def download(
         self,
-        path: PATH_ARGTYPE = DEFAULT_DOWNLOAD_PATH,
+        path: PathArgtype = DEFAULT_DOWNLOAD_PATH,
         categorize: bool = True,
         **kwargs,
     ):
@@ -138,7 +138,7 @@ class GkmasResource:
 
         self._get_media().export(path, **kwargs)
 
-    def _download_path(self, path: PATH_ARGTYPE, categorize: bool) -> Path:
+    def _download_path(self, path: PathArgtype, categorize: bool) -> Path:
         """
         [INTERNAL] Refines the download path based on user input.
         Appends subdirectories unless a definite file path (with suffix) is given.

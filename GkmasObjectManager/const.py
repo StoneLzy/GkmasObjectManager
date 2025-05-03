@@ -10,7 +10,7 @@ from urllib.parse import urljoin
 from .utils import md5sum, sha256sum
 
 # argument type hints
-PATH_ARGTYPE = Union[str, Path]
+PathArgtype = Union[str, Path]
 
 # manifest request
 GKMAS_APPID = 400
