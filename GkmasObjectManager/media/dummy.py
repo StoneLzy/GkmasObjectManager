@@ -17,7 +17,24 @@ logger = Logger()
 
 
 class GkmasDummyMedia:
-    """Unrecognized media handler, also the fallback for conversion plugins."""
+    """
+    Unrecognized media handler, also the fallback for conversion plugins.
+
+    Attributes:
+        name (str): Name of the media file (for logging purposes).
+        mtime (float): Last modified time of the media file as a timestamp.
+        mimetype (str): Media type (e.g., "image", "audio", "video").
+        raw (bytes): Raw binary data of the media file.
+        raw_format (str): Format of the raw media data.
+        converted (bytes): Converted binary data of the media file, if applicable.
+        converted_format (str): Format of the converted media data.
+
+    Methods:
+        get_data(**kwargs) -> Tuple[bytes, str]:
+            Requests data of the desired format.
+        export(path: Path, **kwargs):
+            Exports the media to the specified path.
+    """
 
     def __init__(self, name: str, raw: bytes, mtime: str = ""):
         self.name = name  # only for logging

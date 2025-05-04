@@ -12,15 +12,11 @@ class GkmasObjectList:
     A list of assetbundle/resource metadata, optimized for indexing and comparison.
     Implemented as listing utility wrappers around a list of dictionaries.
 
-    Methods:
-        __sub__(other: GkmasObjectList) -> GkmasObjectList:
-            Subtracts another object list from this one.
-            Returns the list of elements unique to 'self'.
-        rip_field(targets: list) -> GkmasObjectList:
-            Removes selected fields from all dictionaries.
-        diff(other: GkmasObjectList, ignored_fields: list) -> GkmasObjectList:
-            Compares two object lists while ignoring selected fields,
-            but **retains all fields** in the reconstructed output.
+    Attributes:
+        infos (list): List of dictionaries containing metadata for each object.
+        base_class (object): The class that will be instantiated for each object.
+        url_template (str): URL template for fetching the objects.
+            Only used when instantiating objects from the list.
     """
 
     def __init__(self, infos: list, base_class: object, url_template: str):

@@ -34,21 +34,24 @@ class GkmasManifest:
         assetbundles (GkmasObjectList): List of assetbundle *info dictionaries*.
         resources (GkmasObjectList): List of resource *info dictionaries*.
         urlformat (str): URL format for downloading assetbundles/resources.
-            Solely for faithful reconstruction of the manifest.
-    *Documentation for GkmasObjectList can be found in listing.py.*
 
     Methods:
+        export(path: Union[str, Path]) -> None:
+            Exports the manifest as ProtoDB, JSON, and/or CSV to the specified path.
+        search(criterion: str) -> list:
+            Searches the manifest for objects with names *fully* matching the specified criterion.
         download(
             *criteria: str,
             path: Union[str, Path] = DEFAULT_DOWNLOAD_PATH,
             categorize: bool = True,
-            convert_image: bool = True,
-            image_format: str = "png",
-            image_resize: Union[None, str, Tuple[int, int]] = None,
+            **kwargs,
         ) -> None:
             Downloads the regex-specified assetbundles/resources to the specified path.
-        export(path: Union[str, Path]) -> None:
-            Exports the manifest as ProtoDB, JSON, and/or CSV to the specified path.
+        download_preset(preset_filename: str) -> None:
+            Downloads by a predefined preset (see examples in presets/).
+        download_all_assetbundles(**kwargs) -> None
+        download_all_resources(**kwargs) -> None
+        download_all(**kwargs) -> None
     """
 
     def __init__(self, jdict: dict, base_revision: int = 0):
@@ -57,8 +60,8 @@ class GkmasManifest:
 
         Args:
             jdict (dict): JSON-serialized dictionary extracted from protobuf.
-                Must contain 'revision', 'assetBundleList', 'resourceList',
-                and 'urlFormat' keys.
+                Must contain 'revision' and 'urlFormat' fields.
+                May contain 'assetBundleList' and 'resourceList'.
             base_revision (int) = 0: The revision number of the base manifest.
                 Manually specified when loading a diff, at which case
                 a warning of conflict is raised if jdict['revision'] is already a tuple.
@@ -282,15 +285,6 @@ class GkmasManifest:
                 *WARNING: Behavior is undefined if the path points to an definite file (with extension).*
             categorize (bool) = True: Whether to categorize downloaded objects into subdirectories.
                 If False, all objects are downloaded to the specified 'path' in a flat structure.
-            convert_image (bool) = True: Whether to extract images from assetbundles of type 'img'.
-                If False, 'img_.*\\.unity3d' are downloaded as is.
-            image_format (str) = 'png': Image format for extraction. Case-insensitive.
-                Effective only when 'convert_image' is True. Format must support RGBA mode.
-                Valid options are checked by PIL.Image.save() and are not enumerated.
-            image_resize (Union[None, str, Tuple[int, int]]) = None: Image resizing argument.
-                If None, images are downloaded as is.
-                If str (must contain exactly one ':'), image is resized to the specified ratio.
-                If Tuple[int, int], images are resized to the specified exact dimensions.
         """
 
         if "preset" in kwargs:

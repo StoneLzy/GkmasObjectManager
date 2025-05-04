@@ -30,12 +30,10 @@ class GkmasAssetBundle(GkmasResource):
         download(
             path: Union[str, Path] = DEFAULT_DOWNLOAD_PATH,
             categorize: bool = True,
-            convert_image: bool = True,
-            image_format: str = "png",
-            image_resize: Union[None, str, Tuple[int, int]] = None,
+            **kwargs,
         ) -> None:
             Downloads and deobfuscates the assetbundle to the specified path.
-            Also extracts a single image from each bundle with type 'img'.
+            Also performs media conversion if applicable.
     """
 
     def __init__(self, info: dict, url_template: str):

@@ -37,6 +37,7 @@ class GkmasResource:
         download(
             path: Union[str, Path] = DEFAULT_DOWNLOAD_PATH,
             categorize: bool = True,
+            **kwargs,
         ) -> None:
             Downloads the resource to the specified path.
     """
