@@ -1,3 +1,8 @@
+"""
+sovits_dataset.py
+A script to create a dataset for training a voice cloning model.
+"""
+
 import json
 import re
 import shutil
@@ -59,9 +64,6 @@ class CacheHandler:
 
 
 class SudCacheHandler(CacheHandler):
-
-    def __init__(self, cwd: Path, args=None):
-        super().__init__(cwd, args)
 
     def _rectify_filename(self, p: Path) -> str:
         f = p.name

@@ -1,12 +1,14 @@
+"""
+server.py
+Flask web server entry point.
+"""
+
 from datetime import timedelta, timezone
 from email.utils import parsedate_to_datetime
 
 from flask import Flask, Response, jsonify, render_template, request
 
 import GkmasObjectManager as gom
-
-# Bookkeeping
-
 
 app = Flask(__name__)
 m = None
