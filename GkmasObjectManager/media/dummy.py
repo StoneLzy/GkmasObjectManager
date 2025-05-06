@@ -8,7 +8,6 @@ as well as a fallback for unknown media types.
 import os
 from email.utils import parsedate_to_datetime
 from pathlib import Path
-from typing import Tuple
 from zipfile import ZipFile
 
 from ..utils import Logger
@@ -30,7 +29,7 @@ class GkmasDummyMedia:
         converted_format (str): Format of the converted media data.
 
     Methods:
-        get_data(**kwargs) -> Tuple[bytes, str]:
+        get_data(**kwargs) -> dict:
             Requests data of the desired format.
         export(path: Path, **kwargs):
             Exports the media to the specified path.
@@ -49,7 +48,7 @@ class GkmasDummyMedia:
     def _convert(self, raw: bytes, **kwargs) -> bytes:
         raise NotImplementedError  # TO BE OVERRIDDEN
 
-    def get_data(self, **kwargs) -> Tuple[bytes, str]:
+    def get_data(self, **kwargs) -> dict:
         """
         Requests data of the desired format.
 
@@ -57,7 +56,7 @@ class GkmasDummyMedia:
             {mimetype}_format (str): Desired format for the media type.
 
         Returns:
-            Tuple[bytes, str]: A tuple of (media data, mimetype).
+            dict: A dictionary of keys "bytes", "mimetype", and "mtime".
         """
 
         fmt = kwargs.get(
@@ -66,11 +65,15 @@ class GkmasDummyMedia:
         )
 
         if self.raw_format == fmt:  # rawdump
-            return self.raw, (
-                f"{self.mimetype}/{self.raw_format}"
-                if self.mimetype and self.raw_format
-                else "application/octet-stream"
-            )
+            return {
+                "bytes": self.raw,
+                "mimetype": (
+                    f"{self.mimetype}/{self.raw_format}"
+                    if self.mimetype and self.raw_format
+                    else "application/octet-stream"
+                ),
+                "mtime": self.mtime,
+            }
 
         if self.converted_format != fmt:  # record and convert
             self.converted_format = fmt
@@ -80,18 +83,22 @@ class GkmasDummyMedia:
             self.converted = self._convert(self.raw, **kwargs)
             # the only place where **kwargs are used is image_resize in GkmasImage
 
-        return self.converted, (
-            "application/zip"
-            if self.converted.startswith(b"PK\x03\x04")
-            # a bit of a hack, but we don't want to override bookkeeping vars
-            else (
-                f"{self.mimetype}/{self.converted_format}"
-                if self.mimetype and self.converted_format
-                else "application/octet-stream"
-                # in case some malicious user escaped the 'if self.raw_format == fmt' branch
-                # by explicitly specifying 'None_format' as some random value
-            )
-        )
+        return {
+            "bytes": self.converted,
+            "mimetype": (
+                "application/zip"
+                if self.converted.startswith(b"PK\x03\x04")
+                # a bit of a hack, but we don't want to override bookkeeping vars
+                else (
+                    f"{self.mimetype}/{self.converted_format}"
+                    if self.mimetype and self.converted_format
+                    else "application/octet-stream"
+                    # in case some malicious user escaped the 'if self.raw_format == fmt' branch
+                    # by explicitly specifying 'None_format' as some random value
+                )
+            ),
+            "mtime": self.mtime,
+        }
 
     def export(self, path: Path, **kwargs):
         """
@@ -123,9 +130,9 @@ class GkmasDummyMedia:
         logger.success(f"{self.name} downloaded")
 
     def _export_converted(self, path: Path, **kwargs):
-        data, mimetype = self.get_data(**kwargs)
-        mimesubtype = mimetype.split("/")[1]
-        path.with_suffix(f".{mimesubtype}").write_bytes(data)
+        data = self.get_data(**kwargs)
+        mimesubtype = data["mimetype"].split("/")[1]
+        path.with_suffix(f".{mimesubtype}").write_bytes(data["bytes"])
         if self.mtime:
             os.utime(path.with_suffix(f".{mimesubtype}"), (self.mtime, self.mtime))
         logger.success(f"{self.name} downloaded and converted to {mimesubtype.upper()}")

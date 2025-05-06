@@ -3,8 +3,7 @@ server.py
 Flask web server entry point.
 """
 
-from datetime import timedelta, timezone
-from email.utils import parsedate_to_datetime
+from datetime import datetime, timedelta, timezone
 
 from flask import Flask, Response, jsonify, render_template, request
 
@@ -21,8 +20,8 @@ def _get_manifest():
     return m
 
 
-def _sanitize_mtime(mtime):
-    mtime = parsedate_to_datetime(mtime)
+def _sanitize_mtime(mtime: float) -> str:
+    mtime = datetime.fromtimestamp(mtime, tz=timezone.utc)
     mtime = mtime.astimezone(timezone(timedelta(hours=9)))  # Japan Standard Time
     return mtime.strftime("%Y-%m-%d %H:%M:%S")
 
@@ -56,22 +55,22 @@ def api_search():
 @app.route("/api/assetbundle/<id>/bytestream")
 def api_assetbundle_bytestream(id):
     obj = _get_manifest().assetbundles[int(id)]
-    bytestream, mimetype = obj.get_data()
+    data = obj.get_data()
     return Response(
-        bytestream,
-        mimetype=mimetype,
-        headers={"Last-Modified": _sanitize_mtime(obj._mtime)},
+        data["bytes"],
+        mimetype=data["mimetype"],
+        headers={"Last-Modified": _sanitize_mtime(data["mtime"])},
     )
 
 
 @app.route("/api/resource/<id>/bytestream")
 def api_resource_bytestream(id):
     obj = _get_manifest().resources[int(id)]
-    bytestream, mimetype = obj.get_data()
+    data = obj.get_data()
     return Response(
-        bytestream,
-        mimetype=mimetype,
-        headers={"Last-Modified": _sanitize_mtime(obj._mtime)},
+        data["bytes"],
+        mimetype=data["mimetype"],
+        headers={"Last-Modified": _sanitize_mtime(data["mtime"])},
     )
 
 

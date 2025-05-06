@@ -102,7 +102,7 @@ class GkmasResource:
 
         return self._media
 
-    def get_data(self, **kwargs) -> Tuple[bytes, str]:
+    def get_data(self, **kwargs) -> dict:
         """
         Requests object data, potentially converting it to a specific format.
         For **kwargs usage, see get_data() methods of GkmasDummyMedia and descendants in media/.
@@ -112,7 +112,7 @@ class GkmasResource:
             {mimetype}_format (str): Desired format for the media type.
 
         Returns:
-            Tuple[bytes, str]: A tuple of (media data, mimetype).
+            dict: A dictionary of keys "bytes", "mimetype", and "mtime".
         """
         return self._get_media().get_data(**kwargs)
 
