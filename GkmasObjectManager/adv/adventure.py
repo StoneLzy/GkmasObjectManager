@@ -16,8 +16,7 @@ parser = GkadvCommandParser()
 class GkmasAdventure(GkmasDummyMedia):
     """Handler for adventure story scripts."""
 
-    def __init__(self, name: str, raw: bytes, mtime: str = ""):
-        super().__init__(name, raw, mtime)
+    def _init_mimetype(self, name: str):
         self.mimetype = "text"
         self.converted_format = "json"
 

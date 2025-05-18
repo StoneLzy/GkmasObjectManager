@@ -41,9 +41,20 @@ class GkmasDummyMedia:
         self.raw = raw  # raw binary data (we don't want to reencode known formats)
         self.converted = None  # converted binary data (if applicable)
 
+        # Children should override raw_format if raw bytes is "ready"
+        #   or converted_format as the default target, but **not both.**
+        # This mutual exclusivity forces the following two 'None' fallbacks
+        #   to appear here, otherwise we get AttributeError's.
+        # This isn't a problem for self.mimetype since it's mandatory.
+        self.raw_format = None
+        self.converted_format = None
+        self._init_mimetype(name)
+
+    def _init_mimetype(self, name: str):
         self.mimetype = None  # TO BE OVERRIDDEN (e.g., "image", "audio", "video")
-        self.raw_format = None  # TO BE OVERRIDDEN
-        self.converted_format = None  # TO BE OVERRIDDEN
+        self.raw_format = None  # TO BE OVERRIDDEN, or
+        self.converted_format = None  # TO BE OVERRIDDEN (choose one)
+        # yeah these two lines appear twice... this time just as a hint
 
     def _convert(self, raw: bytes, **kwargs) -> bytes:
         raise NotImplementedError  # TO BE OVERRIDDEN
