@@ -21,15 +21,18 @@ class GkmasAdventure(GkmasDummyMedia):
         self.mimetype = "text"
         self.converted_format = "json"
 
-        self.commands = [
-            parser.process(line) for line in raw.decode("utf-8").splitlines()
-        ]
+    def _get_commands(self) -> list:
+        if not hasattr(self, "commands"):
+            self.commands = [
+                parser.process(line) for line in self.raw.decode("utf-8").splitlines()
+            ]
+        return self.commands
 
     def _convert(self, raw: bytes, **kwargs) -> bytes:
         # only for compatibility with GkmasResource
         return bytes(
             json.dumps(
-                self.commands,
+                self._get_commands(),
                 indent=4,
                 ensure_ascii=False,
             ),
