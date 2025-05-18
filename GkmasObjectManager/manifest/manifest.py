@@ -15,7 +15,7 @@ from google.protobuf.json_format import ParseError
 
 from ..const import CHARACTER_ABBREVS, CSV_COLUMNS, DEFAULT_DOWNLOAD_PATH, PathArgtype
 from ..object import GkmasAssetBundle, GkmasResource
-from ..utils import Logger
+from ..utils import Logger, nocache
 from .listing import GkmasObjectList
 from .octodb_pb2 import dict2pdbytes
 from .revision import GkmasManifestRevision
@@ -387,6 +387,7 @@ class GkmasManifest:
         """
         asyncio.run(self._dispatch(list(self), **kwargs))
 
+    @nocache
     async def _dispatch(self, obj_kw: list, **kwargs):
         """
         [INTERNAL] Dispatches a list of object-kwargs pairs to async download tasks.

@@ -35,6 +35,8 @@ class GkmasDummyMedia:
             Exports the media to the specified path.
     """
 
+    ENABLE_CACHE = True
+
     def __init__(self, name: str, raw: bytes, mtime: str = ""):
         self.name = name  # only for logging
         self.mtime = parsedate_to_datetime(mtime).timestamp() if mtime else None

@@ -6,6 +6,8 @@ General-purpose utilities: hashing, rich console logger.
 from cryptography.hazmat.primitives import hashes
 from rich.console import Console
 
+from .media import GkmasDummyMedia
+
 
 def sha256sum(data: bytes) -> bytes:
     """Calculates SHA-256 hash of the given data."""
@@ -19,6 +21,20 @@ def md5sum(data: bytes) -> bytes:
     digest = hashes.Hash(hashes.MD5())
     digest.update(data)
     return digest.finalize()
+
+
+def nocache(func):
+    """Decorator to temporarily disable caching for GkmasDummyMedia and children."""
+
+    def wrapper(*args, **kwargs):
+        original = GkmasDummyMedia.ENABLE_CACHE
+        GkmasDummyMedia.ENABLE_CACHE = False
+        try:
+            return func(*args, **kwargs)
+        finally:
+            GkmasDummyMedia.ENABLE_CACHE = original
+
+    return wrapper
 
 
 class Logger(Console):
