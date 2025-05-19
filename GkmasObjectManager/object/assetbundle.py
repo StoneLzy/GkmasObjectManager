@@ -60,14 +60,13 @@ class GkmasAssetBundle(GkmasResource):
         """
 
         if self._media is None:
-            data = self._download_bytes()
             if self.name.startswith("img_"):
                 media_class = GkmasUnityImage
             elif self.name.startswith("sud_"):
                 media_class = GkmasUnityAudio
             else:
                 media_class = GkmasDummyMedia
-            self._media = media_class(self._idname, data, self._mtime)
+            self._media = media_class(self._idname, self._download_bytes)
 
         return self._media
 
@@ -78,19 +77,23 @@ class GkmasAssetBundle(GkmasResource):
         """
         return super()._download_path(path, categorize).with_suffix(".unity3d")
 
-    def _download_bytes(self) -> bytes:
+    def _download_bytes(self) -> dict:
         """
         [INTERNAL] Downloads, and optionally deobfuscates, the assetbundle as raw bytes.
         Sanity checks are implemented in parent class GkmasResource.
         """
 
         data = super()._download_bytes()
+        _bytes, _mtime = data["bytes"], data["mtime"]
 
-        if not data.startswith(UNITY_SIGNATURE):
-            data = GkmasAssetBundleDeobfuscator(self.name).process(data)
-            if not data.startswith(UNITY_SIGNATURE):
+        if not _bytes.startswith(UNITY_SIGNATURE):
+            _bytes = GkmasAssetBundleDeobfuscator(self.name).process(_bytes)
+            if not _bytes.startswith(UNITY_SIGNATURE):
                 logger.warning(f"{self._idname} downloaded but LEFT OBFUSCATED")
                 # Unexpected things may happen...
                 # So unlike _download_bytes(), here we don't raise an error and abort.
 
-        return data
+        return {
+            "bytes": _bytes,
+            "mtime": _mtime,
+        }

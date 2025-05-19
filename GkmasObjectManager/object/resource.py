@@ -4,8 +4,8 @@ General-purpose resource downloading.
 """
 
 import re
+from email.utils import parsedate_to_datetime
 from pathlib import Path
-from typing import Tuple
 
 import requests
 
@@ -65,10 +65,6 @@ class GkmasResource:
         # Not set at initialization, since downloading bytes is a prerequisite.
         self._media = None
 
-        # Modification time, to be overwritten by _download_bytes()
-        # (if available; checked before passing to os.utime())
-        self._mtime = ""
-
     def __repr__(self):
         return f"<GkmasResource {self._idname}>"
 
@@ -83,7 +79,6 @@ class GkmasResource:
         """
 
         if self._media is None:
-            data = self._download_bytes()
             if self.name.startswith("img_"):
                 media_class = GkmasImage
             elif self.name.startswith("sud_") and self.name.endswith(".awb"):
@@ -98,7 +93,7 @@ class GkmasResource:
                 media_class = GkmasAdventure
             else:
                 media_class = GkmasDummyMedia
-            self._media = media_class(self._idname, data, self._mtime)
+            self._media = media_class(self._idname, self._download_bytes)
 
         return self._media
 
@@ -184,7 +179,7 @@ class GkmasResource:
 
         return Path(*filename.split("_"))
 
-    def _download_bytes(self) -> bytes:
+    def _download_bytes(self) -> dict:
         """
         [INTERNAL] Downloads the resource from the server and performs sanity checks
         on HTTP status code, size, and MD5 hash. Returns the resource as raw bytes.
@@ -204,6 +199,8 @@ class GkmasResource:
         if md5sum(response.content) != bytes.fromhex(self.md5):
             logger.error(f"{self._idname} has invalid MD5 hash")
 
-        self._mtime = response.headers.get("Last-Modified", "")
-
-        return response.content
+        mtime = response.headers.get("Last-Modified", "")
+        return {
+            "bytes": response.content,
+            "mtime": parsedate_to_datetime(mtime).timestamp() if mtime else None,
+        }

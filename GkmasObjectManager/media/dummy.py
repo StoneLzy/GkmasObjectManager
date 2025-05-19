@@ -6,8 +6,8 @@ as well as a fallback for unknown media types.
 """
 
 import os
-from email.utils import parsedate_to_datetime
 from pathlib import Path
+from typing import Callable
 from zipfile import ZipFile
 
 from ..utils import Logger
@@ -21,6 +21,7 @@ class GkmasDummyMedia:
 
     Attributes:
         name (str): Name of the media file (for logging purposes).
+        downloader (Callable): Function to lazily download raw bytes.
         mtime (float): Last modified time of the media file as a timestamp.
         mimetype (str): Media type (e.g., "image", "audio", "video").
         raw (bytes): Raw binary data of the media file.
@@ -35,12 +36,14 @@ class GkmasDummyMedia:
             Exports the media to the specified path.
     """
 
-    ENABLE_CACHE = True
+    ENABLE_CACHE = False
 
-    def __init__(self, name: str, raw: bytes, mtime: str = ""):
+    def __init__(self, name: str, downloader: Callable[[], dict]):
         self.name = name  # only for logging
-        self.mtime = parsedate_to_datetime(mtime).timestamp() if mtime else None
-        self.raw = raw  # raw binary data (we don't want to reencode known formats)
+        self.downloader = downloader  # lazy downloader
+
+        self.mtime = None
+        self.raw = None  # raw binary data (we don't want to reencode known formats)
         self.converted = None  # converted binary data (if applicable)
 
         # Children should override raw_format if raw bytes is "ready"
@@ -78,8 +81,9 @@ class GkmasDummyMedia:
         )
 
         if self.raw_format == fmt:  # rawdump
+            _bytes = self._get_raw()  # must be called before accessing self.mtime
             return {
-                "bytes": self.raw,
+                "bytes": _bytes,
                 "mimetype": (
                     f"{self.mimetype}/{self.raw_format}"
                     if self.mimetype and self.raw_format
@@ -90,17 +94,14 @@ class GkmasDummyMedia:
 
         if self.converted_format != fmt:  # record and convert
             self.converted_format = fmt
-            self.converted = None
+            self.converted = None  # invalidate cache
 
-        if self.converted is None:
-            self.converted = self._convert(self.raw, **kwargs)
-            # the only place where **kwargs are used is image_resize in GkmasImage
-
+        _bytes = self._get_converted(**kwargs)
         return {
-            "bytes": self.converted,
+            "bytes": _bytes,
             "mimetype": (
                 "application/zip"
-                if self.converted.startswith(b"PK\x03\x04")
+                if _bytes.startswith(b"PK\x03\x04")
                 # a bit of a hack, but we don't want to override bookkeeping vars
                 else (
                     f"{self.mimetype}/{self.converted_format}"
@@ -112,6 +113,23 @@ class GkmasDummyMedia:
             ),
             "mtime": self.mtime,
         }
+
+    def _get_raw(self) -> bytes:
+        if self.raw is not None:
+            return self.raw  # read from cache
+        data = self.downloader()
+        self.mtime = data["mtime"]  # unconditionally cache, as a metadata field
+        if self.ENABLE_CACHE:
+            self.raw = data["bytes"]
+        return data["bytes"]  # cached or not, this is "valid"
+
+    def _get_converted(self, **kwargs) -> bytes:
+        if self.converted is not None:
+            return self.converted  # assumes proper invalidation beforehand
+        converted = self._convert(self._get_raw(), **kwargs)  # e.g., image_resize
+        if self.ENABLE_CACHE:
+            self.converted = converted
+        return converted
 
     def export(self, path: Path, **kwargs):
         """
