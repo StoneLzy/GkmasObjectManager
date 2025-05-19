@@ -36,7 +36,7 @@ class GkmasDummyMedia:
             Exports the media to the specified path.
     """
 
-    ENABLE_CACHE = False
+    ENABLE_CACHE = True
 
     def __init__(self, name: str, downloader: Callable[[], dict]):
         self.name = name  # only for logging
@@ -155,7 +155,7 @@ class GkmasDummyMedia:
             self._export_raw(path)
 
     def _export_raw(self, path: Path):
-        path.write_bytes(self.raw)
+        path.write_bytes(self._get_raw())
         if self.mtime:
             os.utime(path, (self.mtime, self.mtime))
         logger.success(f"{self.name} downloaded")
