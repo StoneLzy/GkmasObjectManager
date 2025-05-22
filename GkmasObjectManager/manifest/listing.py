@@ -34,6 +34,12 @@ class GkmasObjectList:
     def __repr__(self):
         return f"<GkmasObjectList of {len(self.infos)} {self.base_class.__name__}'s>"
 
+    def _get_object(self, idx: int) -> object:
+        # necessary for enabling cache everywhere
+        if self._objects[idx] is None:
+            self._objects[idx] = self.base_class(self.infos[idx], self.url_template)
+        return self._objects[idx]
+
     def __getitem__(self, key: Union[int, str]) -> object:
 
         if isinstance(key, int):
@@ -43,14 +49,11 @@ class GkmasObjectList:
         else:
             raise TypeError  # just in case, should never reach here
 
-        if self._objects[idx] is None:
-            self._objects[idx] = self.base_class(self.infos[idx], self.url_template)
-
-        return self._objects[idx]
+        return self._get_object(idx)
 
     def __iter__(self):
-        for info in self.infos:
-            yield self.base_class(info, self.url_template)
+        for i in range(len(self.infos)):
+            yield self._get_object(i)
 
     def __len__(self):
         return len(self.infos)

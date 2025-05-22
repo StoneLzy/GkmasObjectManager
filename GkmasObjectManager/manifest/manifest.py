@@ -275,6 +275,7 @@ class GkmasManifest:
         # This will be called by frontend.
         # We instantiate here to make ID's readily available.
 
+    @nocache
     def download(self, *criteria: str, **kwargs):
         """
         Downloads the regex-specified assetbundles/resources to the specified path.
@@ -305,6 +306,7 @@ class GkmasManifest:
 
         asyncio.run(self._dispatch(objects, **kwargs))
 
+    @nocache
     def download_preset(self, preset_filename: str):
         """
         [INTERNAL] Downloads by a predefined preset (see examples in presets/).
@@ -366,6 +368,7 @@ class GkmasManifest:
             logger.info(f"Running post-processing script '{pp_path}'")
             subprocess.run(["python", pp_path, root], check=True)
 
+    @nocache
     def download_all_assetbundles(self, **kwargs):
         """
         Downloads all assetbundles to the specified path.
@@ -373,6 +376,7 @@ class GkmasManifest:
         """
         asyncio.run(self._dispatch(list(self.assetbundles), **kwargs))
 
+    @nocache
     def download_all_resources(self, **kwargs):
         """
         Downloads all resources to the specified path.
@@ -380,6 +384,7 @@ class GkmasManifest:
         """
         asyncio.run(self._dispatch(list(self.resources), **kwargs))
 
+    @nocache
     def download_all(self, **kwargs):
         """
         Downloads all assetbundles and resources to the specified path.
@@ -387,7 +392,6 @@ class GkmasManifest:
         """
         asyncio.run(self._dispatch(list(self), **kwargs))
 
-    @nocache
     async def _dispatch(self, obj_kw: list, **kwargs):
         """
         [INTERNAL] Dispatches a list of object-kwargs pairs to async download tasks.

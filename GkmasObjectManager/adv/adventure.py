@@ -23,7 +23,8 @@ class GkmasAdventure(GkmasDummyMedia):
     def _get_commands(self) -> list:
         if not hasattr(self, "commands"):
             self.commands = [
-                parser.process(line) for line in self.raw.decode("utf-8").splitlines()
+                parser.process(line)
+                for line in self._get_raw().decode("utf-8").splitlines()
             ]
         return self.commands
 
