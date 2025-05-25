@@ -21,7 +21,7 @@ class GkmasImage(GkmasDummyMedia):
 
     def _init_mimetype(self, name: str):
         self.mimetype = "image"
-        self.raw_format = name.split(".")[-1][:-1]
+        self.raw_format = self._name_ext
 
     def _convert(self, raw: bytes, **kwargs) -> bytes:
         return self._img2bytes(Image.open(BytesIO(raw)), **kwargs)

@@ -26,7 +26,7 @@ class GkmasAudio(GkmasDummyMedia):
 
     def _init_mimetype(self, name: str):
         self.mimetype = "audio"
-        self.raw_format = name.split(".")[-1][:-1]
+        self.raw_format = self._name_ext
 
     def _convert(self, raw: bytes, **kwargs) -> bytes:
         audio = AudioSegment.from_file(BytesIO(raw))
@@ -72,7 +72,7 @@ class GkmasAWBAudio(GkmasDummyMedia):
         audio = None
         success = False
         exception = None
-        input_ext = self.name.split(".")[-1][:-1]
+        input_ext = self._name_ext
 
         # vgmstream doesn't like delete=True
         with tempfile.NamedTemporaryFile(

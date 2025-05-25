@@ -40,6 +40,7 @@ class GkmasDummyMedia:
 
     def __init__(self, name: str, downloader: Callable[[], dict]):
         self.name = name  # only for logging
+        self._name_ext = name.split(".")[-1][:-1]
         self.downloader = downloader  # lazy downloader
 
         self.mtime = None
@@ -121,7 +122,7 @@ class GkmasDummyMedia:
         # Basically a stripped get_data() that returns only the latter half of 'mimetype'.
 
         # Key differences:
-        # - collapse 'fmt if fmt else ""' to 'fmt or ""'
+        # - collapse 'fmt if fmt else DEFAULT' to 'fmt or DEFAULT'
         # - merge !self.mimetype common fallbacks, escalate it above fmt check
         # - map 'octet-stream' empty string for skipping suffix substitution
         # - .zip is *fundamentally* uncatchable and ignored, since we wouldn't know
@@ -129,16 +130,16 @@ class GkmasDummyMedia:
 
         return (
             (
-                self.raw_format or ""
+                self.raw_format or self._name_ext
                 if self.raw_format
                 == kwargs.get(
                     f"{self.mimetype}_format",
                     self.raw_format or self.converted_format,
                 )
-                else self.converted_format or ""
+                else self.converted_format or self._name_ext
             )
             if self.mimetype
-            else ""
+            else self._name_ext
         )
 
     def _get_raw(self) -> bytes:
@@ -196,15 +197,11 @@ class GkmasDummyMedia:
 
         # underscored vars are for early return and log only
         _mimesubtype = self._get_predicted_mimesubtype(**kwargs)
-        _path = path.with_suffix(f".{_mimesubtype}") if _mimesubtype else path
+        _path = path.with_suffix(f".{_mimesubtype}")
         if _path.exists():
             # self.name is heavily reused in children, and we don't want to
             # change Media's init interface just for reassembly here
-            _name = (
-                f"{self.name.split(".")[0]}.{_mimesubtype}'"
-                if _mimesubtype
-                else self.name
-            )
+            _name = f"{self.name.split(".")[0]}.{_mimesubtype}'"
             logger.warning(f"{_name} already exists, aborting")
             return
 
