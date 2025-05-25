@@ -114,6 +114,33 @@ class GkmasDummyMedia:
             "mtime": self.mtime,
         }
 
+    def _get_predicted_mimesubtype(self, **kwargs) -> str:
+        # This is exclusively used for early return in _export_converted(),
+        #   to avoid true mimesubtype's dependency on raw bytes.
+        #   (By "unpredictable" I'm referring to .zip; elaborated below.)
+        # Basically a stripped get_data() that returns only the latter half of 'mimetype'.
+
+        # Key differences:
+        # - collapse 'fmt if fmt else ""' to 'fmt or ""'
+        # - merge !self.mimetype common fallbacks, escalate it above fmt check
+        # - map 'octet-stream' empty string for skipping suffix substitution
+        # - .zip is *fundamentally* uncatchable and ignored, since we wouldn't know
+        #   a certain .acb is a multi-subsong archive before downloading the raw bytes
+
+        return (
+            (
+                self.raw_format or ""
+                if self.raw_format
+                == kwargs.get(
+                    f"{self.mimetype}_format",
+                    self.raw_format or self.converted_format,
+                )
+                else self.converted_format or ""
+            )
+            if self.mimetype
+            else ""
+        )
+
     def _get_raw(self) -> bytes:
         if self.raw is not None:
             return self.raw  # read from cache
@@ -155,22 +182,36 @@ class GkmasDummyMedia:
             self._export_raw(path)
 
     def _export_raw(self, path: Path):
+
         if path.exists():
             logger.warning(f"{self.name} already exists, aborting")
             return
+
         path.write_bytes(self._get_raw())
         if self.mtime:
             os.utime(path, (self.mtime, self.mtime))
         logger.success(f"{self.name} downloaded")
 
     def _export_converted(self, path: Path, **kwargs):
+
+        # underscored vars are for early return and log only
+        _mimesubtype = self._get_predicted_mimesubtype(**kwargs)
+        _path = path.with_suffix(f".{_mimesubtype}") if _mimesubtype else path
+        if _path.exists():
+            # self.name is heavily reused in children, and we don't want to
+            # change Media's init interface just for reassembly here
+            _name = (
+                f"{self.name.split(".")[0]}.{_mimesubtype}'"
+                if _mimesubtype
+                else self.name
+            )
+            logger.warning(f"{_name} already exists, aborting")
+            return
+
         data = self.get_data(**kwargs)
         mimesubtype = data["mimetype"].split("/")[1]
-        path = path.with_suffix(f".{mimesubtype}")
+        path = path.with_suffix(f".{mimesubtype}")  # true mimesubtype
 
-        if path.exists():
-            logger.warning(f"{self.name} already exists, aborting")
-            return
         path.write_bytes(data["bytes"])
         if self.mtime:
             os.utime(path, (self.mtime, self.mtime))
