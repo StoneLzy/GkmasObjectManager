@@ -128,10 +128,6 @@ class GkmasResource:
         """
 
         path = self._download_path(path, categorize)
-        if path.exists():
-            logger.warning(f"{self._idname} already exists")
-            return
-
         self._get_media().export(path, **kwargs)
 
     def _download_path(self, path: PathArgtype, categorize: bool) -> Path:

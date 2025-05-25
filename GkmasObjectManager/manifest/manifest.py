@@ -174,6 +174,9 @@ class GkmasManifest:
         """
 
         path = Path(path)
+        if path.exists():
+            logger.warning(f"{path} already exists, aborting")
+            return
 
         if format == "infer":
             if path.suffix == ".pdb":

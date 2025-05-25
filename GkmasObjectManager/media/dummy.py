@@ -155,6 +155,9 @@ class GkmasDummyMedia:
             self._export_raw(path)
 
     def _export_raw(self, path: Path):
+        if path.exists():
+            logger.warning(f"{self.name} already exists, aborting")
+            return
         path.write_bytes(self._get_raw())
         if self.mtime:
             os.utime(path, (self.mtime, self.mtime))
@@ -163,15 +166,20 @@ class GkmasDummyMedia:
     def _export_converted(self, path: Path, **kwargs):
         data = self.get_data(**kwargs)
         mimesubtype = data["mimetype"].split("/")[1]
-        path.with_suffix(f".{mimesubtype}").write_bytes(data["bytes"])
+        path = path.with_suffix(f".{mimesubtype}")
+
+        if path.exists():
+            logger.warning(f"{self.name} already exists, aborting")
+            return
+        path.write_bytes(data["bytes"])
         if self.mtime:
-            os.utime(path.with_suffix(f".{mimesubtype}"), (self.mtime, self.mtime))
+            os.utime(path, (self.mtime, self.mtime))
         logger.success(f"{self.name} downloaded and converted to {mimesubtype.upper()}")
 
         if mimesubtype == "zip" and kwargs.get("unpack_subsongs", False):
-            with ZipFile(path.with_suffix(f".{mimesubtype}")) as z:
+            with ZipFile(path) as z:
                 z.extractall(path.parent)  # surprisingly, doesn't keep mtime's
                 for file in z.namelist():
                     os.utime(path.parent / file, (self.mtime, self.mtime))
-            path.with_suffix(f".{mimesubtype}").unlink()
+            path.unlink()
             logger.success(f"{self.name} unpacked to {path.parent}")
