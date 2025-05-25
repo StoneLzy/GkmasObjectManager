@@ -261,7 +261,12 @@ class GkmasManifest:
 
     # ----------- DOWNLOAD ----------- #
 
-    def search(self, criterion: str):
+    def search(
+        self,
+        criterion: str,
+        by_name: bool = True,
+        ascending: bool = True,
+    ):
         """
         Searches the manifest for objects matching the specified criterion.
         Returns a list of objects.
@@ -270,13 +275,16 @@ class GkmasManifest:
             criterion (str): Regex pattern of object names.
         """
 
+        # This will be called by frontend; we instantiate here to make ID's visible.
         matches = filter(
             lambda s: re.match(criterion, s.name, flags=re.IGNORECASE) is not None,
             list(self),
         )
-        return sorted(matches, key=lambda x: x.name)
-        # This will be called by frontend.
-        # We instantiate here to make ID's readily available.
+        return sorted(
+            matches,
+            key=lambda x: x.name if by_name else x.id,
+            reverse=not ascending,
+        )
 
     @nocache
     def download(self, *criteria: str, **kwargs):
