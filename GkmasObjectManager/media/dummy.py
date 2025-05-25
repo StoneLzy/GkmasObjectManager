@@ -40,7 +40,7 @@ class GkmasDummyMedia:
 
     def __init__(self, name: str, downloader: Callable[[], dict]):
         self.name = name  # only for logging
-        self._name_ext = name.split(".")[-1][:-1]
+        self._name_ext = name.split(".")[-1][:-1].lower()
         self.downloader = downloader  # lazy downloader
 
         self.mtime = None
@@ -49,17 +49,17 @@ class GkmasDummyMedia:
 
         # Children should override raw_format if raw bytes is "ready"
         #   or converted_format as the default target, but **not both.**
-        # This mutual exclusivity forces the following two 'None' fallbacks
+        # This mutual exclusivity forces the following two fallbacks
         #   to appear here, otherwise we get AttributeError's.
         # This isn't a problem for self.mimetype since it's mandatory.
-        self.raw_format = None
-        self.converted_format = None
+        self.raw_format = ""
+        self.converted_format = ""
         self._init_mimetype(name)
 
     def _init_mimetype(self, name: str):
-        self.mimetype = None  # TO BE OVERRIDDEN (e.g., "image", "audio", "video")
-        self.raw_format = None  # TO BE OVERRIDDEN, or
-        self.converted_format = None  # TO BE OVERRIDDEN (choose one)
+        self.mimetype = ""  # TO BE OVERRIDDEN (e.g., "image", "audio", "video")
+        self.raw_format = ""  # TO BE OVERRIDDEN, or
+        self.converted_format = ""  # TO BE OVERRIDDEN (choose one)
         # yeah these two lines appear twice... this time just as a hint
 
     def _convert(self, raw: bytes, **kwargs) -> bytes:
@@ -78,8 +78,8 @@ class GkmasDummyMedia:
 
         fmt = kwargs.get(
             f"{self.mimetype}_format",
-            self.raw_format or self.converted_format,  # fallback if raw_format is None
-        )
+            self.raw_format or self.converted_format,  # fallback if raw_format is empty
+        ).lower()
 
         if self.raw_format == fmt:  # rawdump
             _bytes = self._get_raw()  # must be called before accessing self.mtime
@@ -109,7 +109,7 @@ class GkmasDummyMedia:
                     if self.mimetype and self.converted_format
                     else "application/octet-stream"
                     # in case some malicious user escaped the 'if self.raw_format == fmt' branch
-                    # by explicitly specifying 'None_format' as some random value
+                    # by explicitly specifying '_format' as some random value
                 )
             ),
             "mtime": self.mtime,
@@ -131,7 +131,7 @@ class GkmasDummyMedia:
         fmt = kwargs.get(
             f"{self.mimetype}_format",
             self.raw_format or self.converted_format,
-        )
+        ).lower()
         return (
             (
                 self.raw_format or self._name_ext
