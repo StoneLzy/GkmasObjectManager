@@ -22,8 +22,7 @@ class GkmasAssetBundle(GkmasResource):
 
     Attributes:
         All attributes from GkmasResource, plus
-        name (str): Human-readable name.
-            Appended with '.unity3d' only at download and CSV export.
+        name (str): Human-readable name, appended with '.unity3d'.
         crc (int): CRC checksum, unused for now (since scheme is unknown).
 
     Methods:
@@ -48,10 +47,16 @@ class GkmasAssetBundle(GkmasResource):
         """
 
         super().__init__(info, url_template)
+        self.name += ".unity3d"
         self._idname = f"AB[{self.id:05}] '{self.name}'"
 
     def __repr__(self):
         return f"<GkmasAssetBundle {self._idname}>"
+
+    def _get_canon_repr(self):
+        canon = super()._get_canon_repr()
+        canon["name"] = canon["name"].replace(".unity3d", "")
+        return canon
 
     def _get_media(self):
         """
@@ -69,13 +74,6 @@ class GkmasAssetBundle(GkmasResource):
             self._media = media_class(self._idname, self._download_bytes)
 
         return self._media
-
-    def _download_path(self, path: PathArgtype, categorize: bool) -> Path:
-        """
-        [INTERNAL] Refines the download path based on user input.
-        Inherited from GkmasResource, but imposes a '.unity3d' suffix.
-        """
-        return super()._download_path(path, categorize).with_suffix(".unity3d")
 
     def _download_bytes(self) -> dict:
         """
