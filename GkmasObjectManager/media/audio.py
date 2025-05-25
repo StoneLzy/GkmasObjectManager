@@ -59,7 +59,7 @@ class GkmasAWBAudio(GkmasDummyMedia):
 
     def _make_vgmstream_args(self, tmp_in: str, tmp_out: str, suffix: str) -> list:
         return [
-            Path(__file__).parent / f"vgmstream/vgmstream-{suffix}",
+            Path(__file__).parent.parent / f"bin/vgmstream/vgmstream-{suffix}",
             "-o",
             Path(tmp_out, "converted.wav"),  # name can be anything except '?n' wildcard
             tmp_in,
@@ -137,7 +137,7 @@ class GkmasACBAudio(GkmasAWBAudio):
 
     def _make_vgmstream_args(self, tmp_in: str, tmp_out: str, suffix: str) -> list:
         return [
-            Path(__file__).parent / f"vgmstream/vgmstream-{suffix}",
+            Path(__file__).parent.parent / f"bin/vgmstream/vgmstream-{suffix}",
             "-S",  # select subsongs
             "-1",  # all of them (this is a number; shell=True forces string args)
             "-o",
