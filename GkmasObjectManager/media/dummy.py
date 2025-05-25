@@ -124,19 +124,19 @@ class GkmasDummyMedia:
         # Key differences:
         # - collapse 'fmt if fmt else DEFAULT' to 'fmt or DEFAULT'
         # - merge !self.mimetype common fallbacks, escalate it above fmt check
-        # - map 'octet-stream' empty string for skipping suffix substitution
+        # - instead of 'octet-stream', fallback to self._name_ext
         # - .zip is *fundamentally* uncatchable and ignored, since we wouldn't know
         #   a certain .acb is a multi-subsong archive before downloading the raw bytes
 
+        fmt = kwargs.get(
+            f"{self.mimetype}_format",
+            self.raw_format or self.converted_format,
+        )
         return (
             (
                 self.raw_format or self._name_ext
-                if self.raw_format
-                == kwargs.get(
-                    f"{self.mimetype}_format",
-                    self.raw_format or self.converted_format,
-                )
-                else self.converted_format or self._name_ext
+                if self.raw_format == fmt
+                else fmt or self._name_ext
             )
             if self.mimetype
             else self._name_ext
