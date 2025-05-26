@@ -20,7 +20,7 @@ class GkmasAdventure(GkmasDummyMedia):
         self.mimetype = "text"
         self.converted_format = "json"
 
-    def _get_commands(self) -> list:
+    def _get_commands(self) -> list[dict]:
         if not hasattr(self, "commands"):
             self.commands = [
                 parser.process(line)

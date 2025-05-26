@@ -44,16 +44,16 @@ class GkmasManifestRevision:
         else:
             return (self.this, self.base)
 
-    def __eq__(self, other):
+    def __eq__(self, other: "GkmasManifestRevision"):
         return self.this == other.this and self.base == other.base
 
-    def __ne__(self, other):
+    def __ne__(self, other: "GkmasManifestRevision"):
         return not self.__eq__(other)
 
     # No comparison magic methods; things are starting to get ambiguous at this point.
     # We are primarily concerned with the *difference* between revisions.
 
-    def __sub__(self, other):
+    def __sub__(self, other: "GkmasManifestRevision"):
         """
         Returns the difference between two revisions.
         Cases where base = 0 is regarded as the "empty base" and processed at instantiation.
@@ -83,7 +83,7 @@ class GkmasManifestRevision:
             ), "'This' revision of minuend (self) must be newer."
             return GkmasManifestRevision(self.this, other.this)
 
-    def __add__(self, other):
+    def __add__(self, other: "GkmasManifestRevision"):
         """
         Returns the sum of two revisions.
         Requires self.this == other.base to be valid.

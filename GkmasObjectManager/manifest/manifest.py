@@ -120,7 +120,7 @@ class GkmasManifest:
         return key in self.assetbundles or key in self.resources
         # could also try self[key]
 
-    def __sub__(self, other):
+    def __sub__(self, other: "GkmasManifest"):
         return GkmasManifest(
             {  # this is not a standard JSON dict, more like named arguments
                 "revision": self.revision - other.revision,  # handles sanity check
@@ -131,7 +131,7 @@ class GkmasManifest:
             }
         )
 
-    def __add__(self, other):
+    def __add__(self, other: "GkmasManifest"):
         new_revision = self.revision + other.revision
         a, b = (
             (self, other) if new_revision.this == other.revision.this else (other, self)

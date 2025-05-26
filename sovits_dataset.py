@@ -117,7 +117,7 @@ class AdvCacheHandler(CacheHandler):
     def _rectify_filename(self, p: Path) -> str:
         return p.with_suffix(".txt").name
 
-    def _update_caption_map(self, commands):
+    def _update_caption_map(self, commands: list[dict]):
         commands = sorted(
             filter(lambda cmd: cmd["cmd"] in ["message", "voice"], commands),
             key=lambda cmd: cmd["clip"]["_startTime"],
@@ -157,7 +157,7 @@ class AdvCacheHandler(CacheHandler):
         caption = re.sub(r"<[^<>]*>", "", caption)  # remove all tags (incl. emphasis)
         return caption
 
-    def read_multiple(self, filenames: list[Path]) -> list:
+    def read_multiple(self, filenames: list[Path]) -> list[str]:
         return [f"{self.read(f)}\n" for f in filenames]
 
     def export_multiple(self, filenames: list[Path], path: Path = None):

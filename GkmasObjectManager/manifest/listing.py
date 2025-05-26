@@ -19,7 +19,7 @@ class GkmasObjectList:
             Only used when instantiating objects from the list.
     """
 
-    def __init__(self, infos: list, base_class: object, url_template: str):
+    def __init__(self, infos: list[dict], base_class: object, url_template: str):
         infos.sort(key=lambda x: x["id"])
 
         self.infos = infos
@@ -85,7 +85,7 @@ class GkmasObjectList:
             list(mapped.values()), self.base_class, self.url_template
         )
 
-    def _get_canon_repr(self):
+    def _get_canon_repr(self) -> list[dict]:
         """
         [INTERNAL] Returns the JSON-compatible "canonical" representation of the object list.
         """

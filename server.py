@@ -53,7 +53,7 @@ def api_search():
 
 
 @app.route("/api/assetbundle/<id>/bytestream")
-def api_assetbundle_bytestream(id):
+def api_assetbundle_bytestream(id: str):
     obj = _get_manifest().assetbundles[int(id)]
     data = obj.get_data()
     return Response(
@@ -64,7 +64,7 @@ def api_assetbundle_bytestream(id):
 
 
 @app.route("/api/resource/<id>/bytestream")
-def api_resource_bytestream(id):
+def api_resource_bytestream(id: str):
     obj = _get_manifest().resources[int(id)]
     data = obj.get_data()
     return Response(
@@ -95,7 +95,7 @@ def search():
 
 
 @app.route("/view/assetbundle/<id>")
-def view_assetbundle(id):
+def view_assetbundle(id: str):
 
     try:
         obj = _get_manifest().assetbundles[int(id)]
@@ -116,7 +116,7 @@ def view_assetbundle(id):
 
 
 @app.route("/view/resource/<id>")
-def view_resource(id):
+def view_resource(id: str):
 
     try:
         obj = _get_manifest().resources[int(id)]
@@ -129,7 +129,7 @@ def view_resource(id):
 
 
 @app.errorhandler(404)
-def page_not_found(error):
+def page_not_found(error: Exception):
     return render_template("404.html"), 404
 
 
