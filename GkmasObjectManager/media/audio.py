@@ -38,7 +38,7 @@ class GkmasUnityAudio(GkmasAudio):
 
     def _init_mimetype(self, name: str):
         self.mimetype = "audio"
-        self.converted_format = "wav"
+        self.default_converted_format = "wav"
 
     def _convert(self, raw: bytes, **kwargs) -> bytes:
         env = UnityPy.load(raw)
@@ -55,7 +55,7 @@ class GkmasAWBAudio(GkmasDummyMedia):
 
     def _init_mimetype(self, name: str):
         self.mimetype = "audio"
-        self.converted_format = "wav"
+        self.default_converted_format = "wav"
 
     def _make_vgmstream_args(self, tmp_in: str, tmp_out: str, suffix: str) -> list:
         return [

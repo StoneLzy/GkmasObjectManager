@@ -18,7 +18,7 @@ class GkmasAdventure(GkmasDummyMedia):
 
     def _init_mimetype(self, name: str):
         self.mimetype = "text"
-        self.converted_format = "json"
+        self.default_converted_format = "json"
 
     def _get_commands(self) -> list[dict]:
         if not hasattr(self, "commands"):

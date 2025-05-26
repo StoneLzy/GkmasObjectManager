@@ -53,6 +53,7 @@ class GkmasImage(GkmasDummyMedia):
             logger.warning(
                 f"{self.converted_format} doesn't support RGBA mode, fallback to PNG."
             )
+            self.converted_format = "png"
             img.save(io, format="PNG", quality=100, optimize=True)
 
         return io.getvalue()
@@ -112,7 +113,7 @@ class GkmasUnityImage(GkmasImage):
 
     def _init_mimetype(self, name: str):
         self.mimetype = "image"
-        self.converted_format = "png"
+        self.default_converted_format = "png"
 
     def _convert(self, raw: bytes, **kwargs) -> bytes:
         env = UnityPy.load(raw)

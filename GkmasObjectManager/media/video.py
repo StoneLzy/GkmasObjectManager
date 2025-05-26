@@ -16,7 +16,7 @@ class GkmasUSMVideo(GkmasDummyMedia):
 
     def _init_mimetype(self, name: str):
         self.mimetype = "video"
-        self.converted_format = "mp4"
+        self.default_converted_format = "mp4"
 
     def _convert(self, raw: bytes, **kwargs) -> bytes:
 

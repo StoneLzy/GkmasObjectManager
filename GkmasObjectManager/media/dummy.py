@@ -49,17 +49,18 @@ class GkmasDummyMedia:
 
         # Children should override raw_format if raw bytes is "ready"
         #   or converted_format as the default target, but **not both.**
-        # This mutual exclusivity forces the following two fallbacks
+        # This mutual exclusivity forces the following fallbacks
         #   to appear here, otherwise we get AttributeError's.
         # This isn't a problem for self.mimetype since it's mandatory.
         self.raw_format = ""
         self.converted_format = ""
+        self.default_converted_format = ""
         self._init_mimetype(name)
 
     def _init_mimetype(self, name: str):
         self.mimetype = ""  # TO BE OVERRIDDEN (e.g., "image", "audio", "video")
         self.raw_format = ""  # TO BE OVERRIDDEN, or
-        self.converted_format = ""  # TO BE OVERRIDDEN (choose one)
+        self.default_converted_format = ""  # TO BE OVERRIDDEN (choose one)
         # yeah these two lines appear twice... this time just as a hint
 
     def _convert(self, raw: bytes, **kwargs) -> bytes:
@@ -78,7 +79,8 @@ class GkmasDummyMedia:
 
         fmt = kwargs.get(
             f"{self.mimetype}_format",
-            self.raw_format or self.converted_format,  # fallback if raw_format is empty
+            self.raw_format
+            or self.default_converted_format,  # fallback if raw_format is empty
         ).lower()
 
         if self.raw_format == fmt:  # rawdump
@@ -130,7 +132,7 @@ class GkmasDummyMedia:
 
         fmt = kwargs.get(
             f"{self.mimetype}_format",
-            self.raw_format or self.converted_format,
+            self.raw_format or self.default_converted_format,
         ).lower()
         return (
             (
