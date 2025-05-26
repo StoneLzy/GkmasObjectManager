@@ -65,14 +65,14 @@ class GkmasResource:
         # Not set at initialization, since downloading bytes is a prerequisite.
         self._media = None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<GkmasResource {self._idname}>"
 
-    def _get_canon_repr(self):
+    def _get_canon_repr(self) -> dict:
         # this format retains the order of fields
         return {field: getattr(self, field) for field in self._fields}
 
-    def _get_media(self):
+    def _get_media(self) -> GkmasDummyMedia:
         """
         [INTERNAL] Instantiates a high-level media class based on the resource name.
         Used to dispatch download and extraction.

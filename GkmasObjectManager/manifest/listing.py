@@ -31,7 +31,7 @@ class GkmasObjectList:
         self._name_idx = {info["name"]: i for i, info in enumerate(infos)}
         # 'self._*_idx' are int/str -> int lookup tables
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<GkmasObjectList of {len(self.infos)} {self.base_class.__name__}'s>"
 
     def _get_object(self, idx: int) -> object:
@@ -55,7 +55,7 @@ class GkmasObjectList:
         for i in range(len(self.infos)):
             yield self._get_object(i)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.infos)
 
     def __contains__(self, key: str) -> bool:

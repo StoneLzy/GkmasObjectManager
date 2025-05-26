@@ -97,10 +97,10 @@ class GkmasManifest:
         self.urlformat = jdict["urlFormat"]
         # 'jdict' is then discarded and losslessly reconstructed at export
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<GkmasManifest revision {self.revision} with {len(self.assetbundles)} assetbundles and {len(self.resources)} resources>"
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str) -> object:
         try:
             return self.assetbundles[key]
         except KeyError:
@@ -113,14 +113,14 @@ class GkmasManifest:
         for res in self.resources:
             yield res
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.assetbundles) + len(self.resources)
 
-    def __contains__(self, key: str):
+    def __contains__(self, key: str) -> bool:
         return key in self.assetbundles or key in self.resources
         # could also try self[key]
 
-    def __sub__(self, other: "GkmasManifest"):
+    def __sub__(self, other: "GkmasManifest") -> "GkmasManifest":
         return GkmasManifest(
             {  # this is not a standard JSON dict, more like named arguments
                 "revision": self.revision - other.revision,  # handles sanity check
@@ -131,7 +131,7 @@ class GkmasManifest:
             }
         )
 
-    def __add__(self, other: "GkmasManifest"):
+    def __add__(self, other: "GkmasManifest") -> "GkmasManifest":
         new_revision = self.revision + other.revision
         a, b = (
             (self, other) if new_revision.this == other.revision.this else (other, self)
@@ -145,7 +145,7 @@ class GkmasManifest:
             }
         )
 
-    def _get_canon_repr(self):
+    def _get_canon_repr(self) -> dict:
         """
         [INTERNAL] Returns the JSON-compatible "canonical" representation of the manifest.
         """
@@ -266,7 +266,7 @@ class GkmasManifest:
         criterion: str,
         by_name: bool = True,
         ascending: bool = True,
-    ):
+    ) -> list[object]:
         """
         Searches the manifest for objects matching the specified criterion.
         Returns a list of objects.
