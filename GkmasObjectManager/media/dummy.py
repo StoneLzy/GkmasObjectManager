@@ -55,9 +55,9 @@ class GkmasDummyMedia:
         self.raw_format = ""
         self.converted_format = ""
         self.default_converted_format = ""
-        self._init_mimetype(name)
+        self._init_mimetype()
 
-    def _init_mimetype(self, name: str):
+    def _init_mimetype(self):
         self.mimetype = ""  # TO BE OVERRIDDEN (e.g., "image", "audio", "video")
         self.raw_format = ""  # TO BE OVERRIDDEN, or
         self.default_converted_format = ""  # TO BE OVERRIDDEN (choose one)

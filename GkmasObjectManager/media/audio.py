@@ -24,7 +24,7 @@ logger = Logger()
 class GkmasAudio(GkmasDummyMedia):
     """Handler for audio of common formats recognized by pydub."""
 
-    def _init_mimetype(self, name: str):
+    def _init_mimetype(self):
         self.mimetype = "audio"
         self.raw_format = self._name_ext
 
@@ -36,7 +36,7 @@ class GkmasAudio(GkmasDummyMedia):
 class GkmasUnityAudio(GkmasAudio):
     """Conversion plugin for Unity audio."""
 
-    def _init_mimetype(self, name: str):
+    def _init_mimetype(self):
         self.mimetype = "audio"
         self.default_converted_format = "wav"
 
@@ -53,7 +53,7 @@ class GkmasUnityAudio(GkmasAudio):
 class GkmasAWBAudio(GkmasDummyMedia):
     """Conversion plugin for AWB audio."""
 
-    def _init_mimetype(self, name: str):
+    def _init_mimetype(self):
         self.mimetype = "audio"
         self.default_converted_format = "wav"
 

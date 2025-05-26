@@ -14,7 +14,7 @@ logger = Logger()
 class GkmasUSMVideo(GkmasDummyMedia):
     """Conversion plugin for USM videos."""
 
-    def _init_mimetype(self, name: str):
+    def _init_mimetype(self):
         self.mimetype = "video"
         self.default_converted_format = "mp4"
 
