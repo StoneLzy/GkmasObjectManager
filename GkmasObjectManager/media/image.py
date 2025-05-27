@@ -51,13 +51,13 @@ class GkmasImage(GkmasDummyMedia):
 
         io = BytesIO()
         try:
-            img.save(io, format=self.converted_format, quality=100, optimize=True)
+            img.save(io, format=self.converted_format, quality=100)
         except OSError:  # cannot write mode RGBA as {self.converted_format}
             logger.warning(
                 f"{self.converted_format} doesn't support RGBA mode, fallback to PNG."
             )
             self.converted_format = "png"
-            img.save(io, format="PNG", quality=100, optimize=True)
+            img.save(io, format="PNG", quality=100)
 
         return io.getvalue()
 
