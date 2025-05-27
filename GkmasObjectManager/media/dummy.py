@@ -67,7 +67,7 @@ class GkmasDummyMedia:
         # On the other hand, we can't record the sanitized "new size" tuple here,
         #   since it's about checking cache against user input *before* conversion,
         #   and we don't want to move _determine_new_size() to this class.
-        self.image_size = None  # probably better be called last_image_resize
+        self.image_resize = None
 
     def _init_mimetype(self):
         self.mimetype = ""  # TO BE OVERRIDDEN (e.g., "image", "audio", "video")
@@ -84,6 +84,10 @@ class GkmasDummyMedia:
 
         Args:
             {mimetype}_format (str): Desired format for the media type.
+            image_resize (Union[None, str, Tuple[int, int]]) = None: Image resizing argument.
+                If None, image is downloaded as is.
+                If str (must contain exactly one ':'), image is resized to the specified ratio.
+                If Tuple[int, int], image is resized to the specified exact dimensions.
 
         Returns:
             dict: A dictionary of keys "bytes", "mimetype", and "mtime".
@@ -107,12 +111,13 @@ class GkmasDummyMedia:
                 "mtime": self.mtime,
             }
 
+        image_resize = kwargs.get("image_resize", None)
         if (
-            self.converted_format != fmt
-            or kwargs.get("image_resize", None) != self.image_size
+            self.converted_format != fmt or image_resize != self.image_resize
         ):  # record and convert
             self.converted_format = fmt
             self.converted = None  # invalidate cache
+            self.image_resize = image_resize
 
         _bytes = self._get_converted(**kwargs)
         return {

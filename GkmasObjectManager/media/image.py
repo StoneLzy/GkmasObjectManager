@@ -28,18 +28,8 @@ class GkmasImage(GkmasDummyMedia):
 
     # don't put 'image_resize' in signature to match the parent class
     def _img2bytes(self, img: Image, **kwargs) -> bytes:
-        """
-        Args:
-            image_resize (Union[None, str, Tuple[int, int]]) = None: Image resizing argument.
-                If None, image is downloaded as is.
-                If str (must contain exactly one ':'), image is resized to the specified ratio.
-                If Tuple[int, int], image is resized to the specified exact dimensions.
-        """
 
-        image_resize = kwargs.get("image_resize", None)
-        self.image_size = image_resize  # for caching
-        # see comment in dummy.py for why we don't record sanitized tuple
-
+        image_resize = self.image_resize
         if image_resize:
             if isinstance(image_resize, str):
                 image_resize = self._determine_new_size(img.size, ratio=image_resize)
