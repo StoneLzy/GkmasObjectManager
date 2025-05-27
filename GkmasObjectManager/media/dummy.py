@@ -57,6 +57,18 @@ class GkmasDummyMedia:
         self.default_converted_format = ""
         self._init_mimetype()
 
+        # This can't be integrated into Image since it's not about efficiency
+        #   where we can return early if image_resize hits cache in _convert(),
+        #   but about *correctness* where the same format with a different
+        #   image_resize wouldn't even trigger _convert() otherwise.
+        # This is of type Union[None, str, Tuple[int, int]],
+        #   which used to be a global const, but was soon deprecated since
+        #   inside Image we use kwargs.get(), where we can't enforce type hint.
+        # On the other hand, we can't record the sanitized "new size" tuple here,
+        #   since it's about checking cache against user input *before* conversion,
+        #   and we don't want to move _determine_new_size() to this class.
+        self.image_size = None  # probably better be called last_image_resize
+
     def _init_mimetype(self):
         self.mimetype = ""  # TO BE OVERRIDDEN (e.g., "image", "audio", "video")
         self.raw_format = ""  # TO BE OVERRIDDEN, or
@@ -95,7 +107,10 @@ class GkmasDummyMedia:
                 "mtime": self.mtime,
             }
 
-        if self.converted_format != fmt:  # record and convert
+        if (
+            self.converted_format != fmt
+            or kwargs.get("image_resize", None) != self.image_size
+        ):  # record and convert
             self.converted_format = fmt
             self.converted = None  # invalidate cache
 
@@ -134,15 +149,7 @@ class GkmasDummyMedia:
             f"{self.mimetype}_format",
             self.raw_format or self.default_converted_format,
         ).lower()
-        return (
-            (
-                self.raw_format or self._name_ext
-                if self.raw_format == fmt
-                else fmt or self._name_ext
-            )
-            if self.mimetype
-            else self._name_ext
-        )
+        return fmt if (fmt and self.mimetype) else self._name_ext
 
     def _get_raw(self) -> bytes:
         if self.raw is not None:

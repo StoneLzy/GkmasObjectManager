@@ -37,6 +37,9 @@ class GkmasImage(GkmasDummyMedia):
         """
 
         image_resize = kwargs.get("image_resize", None)
+        self.image_size = image_resize  # for caching
+        # see comment in dummy.py for why we don't record sanitized tuple
+
         if image_resize:
             if isinstance(image_resize, str):
                 image_resize = self._determine_new_size(img.size, ratio=image_resize)
