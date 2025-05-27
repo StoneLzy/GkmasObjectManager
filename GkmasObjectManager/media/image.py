@@ -23,11 +23,10 @@ class GkmasImage(GkmasDummyMedia):
         self.mimetype = "image"
         self.raw_format = self._name_ext
 
-    def _convert(self, raw: bytes, **kwargs) -> bytes:
-        return self._img2bytes(Image.open(BytesIO(raw)), **kwargs)
+    def _convert(self, raw: bytes) -> bytes:
+        return self._img2bytes(Image.open(BytesIO(raw)))
 
-    # don't put 'image_resize' in signature to match the parent class
-    def _img2bytes(self, img: Image, **kwargs) -> bytes:
+    def _img2bytes(self, img: Image) -> bytes:
 
         image_resize = self.image_resize
         if image_resize:
@@ -108,8 +107,8 @@ class GkmasUnityImage(GkmasImage):
         self.mimetype = "image"
         self.default_converted_format = "png"
 
-    def _convert(self, raw: bytes, **kwargs) -> bytes:
+    def _convert(self, raw: bytes) -> bytes:
         env = UnityPy.load(raw)
         values = list(env.container.values())
         assert len(values) == 1, f"{self.name} contains {len(values)} images."
-        return super()._img2bytes(values[0].read().image, **kwargs)
+        return super()._img2bytes(values[0].read().image)

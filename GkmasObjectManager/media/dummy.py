@@ -62,8 +62,8 @@ class GkmasDummyMedia:
         #   but about *correctness* where the same format with a different
         #   image_resize wouldn't even trigger _convert() otherwise.
         # This is of type Union[None, str, Tuple[int, int]],
-        #   which used to be a global const, but was soon deprecated since
-        #   inside Image we use kwargs.get(), where we can't enforce type hint.
+        #   which used to be a global const, but was soon deprecated
+        #   since we use kwargs.get() and can't enforce type hint.
         # On the other hand, we can't record the sanitized "new size" tuple here,
         #   since it's about checking cache against user input *before* conversion,
         #   and we don't want to move _determine_new_size() to this class.
@@ -75,7 +75,7 @@ class GkmasDummyMedia:
         self.default_converted_format = ""  # TO BE OVERRIDDEN (choose one)
         # yeah these two lines appear twice... this time just as a hint
 
-    def _convert(self, raw: bytes, **kwargs) -> bytes:
+    def _convert(self, raw: bytes) -> bytes:
         raise NotImplementedError  # TO BE OVERRIDDEN
 
     def get_data(self, **kwargs) -> dict:
@@ -119,7 +119,7 @@ class GkmasDummyMedia:
             self.converted = None  # invalidate cache
             self.image_resize = image_resize
 
-        _bytes = self._get_converted(**kwargs)
+        _bytes = self._get_converted()
         return {
             "bytes": _bytes,
             "mimetype": (
@@ -165,10 +165,10 @@ class GkmasDummyMedia:
             self.raw = data["bytes"]
         return data["bytes"]  # cached or not, this is "valid"
 
-    def _get_converted(self, **kwargs) -> bytes:
+    def _get_converted(self) -> bytes:
         if self.converted is not None:
             return self.converted  # assumes proper invalidation beforehand
-        converted = self._convert(self._get_raw(), **kwargs)  # e.g., image_resize
+        converted = self._convert(self._get_raw())
         if self.ENABLE_CACHE:
             self.converted = converted
         return converted

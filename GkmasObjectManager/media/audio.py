@@ -28,7 +28,7 @@ class GkmasAudio(GkmasDummyMedia):
         self.mimetype = "audio"
         self.raw_format = self._name_ext
 
-    def _convert(self, raw: bytes, **kwargs) -> bytes:
+    def _convert(self, raw: bytes) -> bytes:
         audio = AudioSegment.from_file(BytesIO(raw))
         return audio.export(format=self.converted_format).read()
 
@@ -40,7 +40,7 @@ class GkmasUnityAudio(GkmasAudio):
         self.mimetype = "audio"
         self.default_converted_format = "wav"
 
-    def _convert(self, raw: bytes, **kwargs) -> bytes:
+    def _convert(self, raw: bytes) -> bytes:
         env = UnityPy.load(raw)
         values = list(env.container.values())
         assert len(values) == 1, f"{self.name} contains {len(values)} audio clips."
@@ -65,7 +65,7 @@ class GkmasAWBAudio(GkmasDummyMedia):
             tmp_in,
         ]
 
-    def _convert(self, raw: bytes, **kwargs) -> bytes:
+    def _convert(self, raw: bytes) -> bytes:
         # uses pydub in vastly different ways,
         # thus this class is not inherited from GkmasAudio
 

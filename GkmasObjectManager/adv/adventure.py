@@ -28,7 +28,7 @@ class GkmasAdventure(GkmasDummyMedia):
             ]
         return self.commands
 
-    def _convert(self, raw: bytes, **kwargs) -> bytes:
+    def _convert(self, raw: bytes) -> bytes:
         # only for compatibility with GkmasResource
         return bytes(
             json.dumps(

@@ -18,7 +18,7 @@ class GkmasUSMVideo(GkmasDummyMedia):
         self.mimetype = "video"
         self.default_converted_format = "mp4"
 
-    def _convert(self, raw: bytes, **kwargs) -> bytes:
+    def _convert(self, raw: bytes) -> bytes:
 
         stream_in = ffmpeg.input("pipe:0")
         stream_out = ffmpeg.output(
