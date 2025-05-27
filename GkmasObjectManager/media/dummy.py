@@ -207,6 +207,12 @@ class GkmasDummyMedia:
             logger.warning(f"{_name} already exists, aborting")
             return
 
+        # additional check for existing .zip; yet the unpacked case is still uncovered
+        if self._name_ext == "acb" and path.with_suffix(".zip").exists():
+            _name = f"{self.name.split('.')[0]}.zip"
+            logger.warning(f"{_name} already exists, aborting")
+            return
+
         data = self.get_data(**kwargs)
         mimesubtype = data["mimetype"].split("/")[1]
         path = path.with_suffix(f".{mimesubtype}")  # true mimesubtype
@@ -216,6 +222,7 @@ class GkmasDummyMedia:
             os.utime(path, (self.mtime, self.mtime))
         logger.success(f"{self.name} downloaded and converted to {mimesubtype.upper()}")
 
+        # This can't be integrated into Audio since _convert() is bytes-to-bytes
         if mimesubtype == "zip" and kwargs.get("unpack_subsongs", False):
             with ZipFile(path) as z:
                 z.extractall(path.parent)  # surprisingly, doesn't keep mtime's
