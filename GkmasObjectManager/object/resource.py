@@ -6,8 +6,10 @@ General-purpose resource downloading.
 import re
 from email.utils import parsedate_to_datetime
 from pathlib import Path
+from typing import Union
 
 import requests
+from rich.progress import Progress
 
 from ..adv import GkmasAdventure
 from ..const import CHARACTER_ABBREVS, DEFAULT_DOWNLOAD_PATH, PathArgtype
@@ -15,7 +17,7 @@ from ..media import GkmasDummyMedia
 from ..media.audio import GkmasACBAudio, GkmasAudio, GkmasAWBAudio
 from ..media.image import GkmasImage
 from ..media.video import GkmasUSMVideo
-from ..utils import Logger, md5sum
+from ..utils import Logger, ProgressReporter, md5sum
 
 logger = Logger()
 
@@ -115,6 +117,8 @@ class GkmasResource:
         self,
         path: PathArgtype = DEFAULT_DOWNLOAD_PATH,
         categorize: bool = True,
+        progress: Union[Progress, None] = None,
+        task_id: Union[int, None] = None,
         **kwargs,
     ):
         """
@@ -126,6 +130,11 @@ class GkmasResource:
             categorize (bool) = True: Whether to put the downloaded object into subdirectories.
                 If False, the object is directly downloaded to the specified 'path'.
         """
+
+        # to be accessed in _download_bytes(), which will be called
+        # as a function pointer in Media and can't access kwargs
+        self._progress = progress
+        self._task_id = task_id
 
         path = self._download_path(path, categorize)
         self._get_media().export(path, **kwargs)
@@ -181,22 +190,43 @@ class GkmasResource:
         on HTTP status code, size, and MD5 hash. Returns the resource as raw bytes.
         """
 
-        response = requests.get(self._url, timeout=10)
-        response.raise_for_status()
+        reporter = ProgressReporter(
+            desc=self._idname,  # only used as a fallback if no progress is provided
+            progress=self._progress,
+            task_id=self._task_id,
+        )
+
+        with requests.get(self._url, timeout=10, stream=True) as response:
+            response.raise_for_status()
+
+            chunks = []
+            mtime = response.headers.get("Last-Modified", "")
+            total_size = int(response.headers.get("Content-Length", 0))
+
+            for chunk in response.iter_content(chunk_size=8192):
+                if not chunk:
+                    continue
+                chunks.append(chunk)
+                reporter.update(
+                    "Downloading",
+                    advance=len(chunk),
+                    total=total_size,
+                )
+
+            content = b"".join(chunks)
 
         # We're being strict here by aborting the download process
         # if any of the sanity checks fail, in order to avoid corrupted output.
         # The client can always retry; just ignore the "file already exists" warnings.
         # Note: Returning empty bytes is unnecessary, since logger.error() raises an exception.
 
-        if len(response.content) != self.size:
+        if len(content) != self.size:
             logger.error(f"{self._idname} has invalid size")
 
-        if md5sum(response.content) != bytes.fromhex(self.md5):
+        if md5sum(content) != bytes.fromhex(self.md5):
             logger.error(f"{self._idname} has invalid MD5 hash")
 
-        mtime = response.headers.get("Last-Modified", "")
         return {
-            "bytes": response.content,
+            "bytes": content,
             "mtime": parsedate_to_datetime(mtime).timestamp() if mtime else None,
         }

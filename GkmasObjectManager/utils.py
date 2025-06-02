@@ -3,10 +3,11 @@ utils.py
 General-purpose utilities: hashing, rich console logger.
 """
 
-from typing import Callable
+from typing import Callable, Union
 
 from cryptography.hazmat.primitives import hashes
 from rich.console import Console
+from rich.progress import Progress
 
 
 def sha256sum(data: bytes) -> bytes:
@@ -66,3 +67,60 @@ class Logger(Console):
     def error(self, message: str):
         self.print(f"[bold red][Error][/bold red] {message}")
         raise
+
+
+class ProgressReporter:
+    """
+    An interface for either printing a progress bar to the console,
+    or passing progress updates to a GUI.
+
+    Args:
+        desc (str): Description of the task, usually a filename.
+        progress (Progress, optional): Rich Progress instance for console output.
+            Should only be instantiated in GkmasManifest.download()
+            for a batch of tasks, to support multiple bar updates.
+            If None, a disposable Progress instance is created.
+        task_id (int, optional): Task ID for GUI progress updates.
+            Again, should only be provided by GkmasManifest.download().
+    """
+
+    def __init__(
+        self,
+        desc: str,
+        progress: Union[Progress, None] = None,
+        task_id: Union[int, None] = None,
+    ):
+        if not progress:
+            assert (
+                task_id is None
+            ), "task_id should only be provided with a Progress instance"
+            self.progress = Progress()
+            self.task_id = self.progress.add_task(desc, total=total)
+        else:
+            assert (
+                task_id is not None
+            ), "task_id should be provided with a Progress instance"
+            self.progress = progress
+            self.task_id = task_id
+
+    def update(
+        self,
+        stage: str,
+        completed: Union[int, None] = None,
+        total: Union[int, None] = None,
+    ):
+        """
+        Updates the progress bar by the specified number of units.
+
+        Args:
+            stage (str): Description of the current stage
+                (download, deobfuscate, convert, etc.)
+            completed (int): Usually the number of bytes downloaded.
+        total (int): Usually the total file size in bytes.
+        """
+        self.progress.update(
+            self.task_id,
+            description=f"{stage} {self.progress.format_size(completed)}",
+            completed=completed,
+            total=total,
+        )

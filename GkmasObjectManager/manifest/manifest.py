@@ -12,6 +12,7 @@ from pathlib import Path
 import pandas as pd
 import yaml
 from google.protobuf.json_format import ParseError
+from rich.progress import Progress
 
 from ..const import CHARACTER_ABBREVS, CSV_COLUMNS, DEFAULT_DOWNLOAD_PATH, PathArgtype
 from ..object import GkmasAssetBundle, GkmasResource
@@ -415,17 +416,24 @@ class GkmasManifest:
         [INTERNAL] Dispatches a list of object-kwargs pairs to async download tasks.
         """
 
-        # if obj_kw is a list of objects, append empty kwargs
+        # if "obj_kw" is a list of objects, append empty kwargs
         if not isinstance(obj_kw[0], tuple):
             obj_kw = [(obj, {}) for obj in obj_kw]
 
-        # if kwargs not empty, broadcast to all pairs
+        # if "kwargs" is not empty, broadcast to all pairs
         if kwargs:
             obj_kw = [(obj, {**kw, **kwargs}) for (obj, kw) in obj_kw]
 
-        await asyncio.gather(
-            *[
-                asyncio.create_task(asyncio.to_thread(obj.download, **kw))
-                for (obj, kw) in obj_kw
-            ]
-        )
+        tasks = []
+        progress = Progress()
+
+        for obj, kw in obj_kw:
+            kw["progress"] = progress
+            kw["task_id"] = progress.add_task(obj.name)
+            tasks.append(
+                asyncio.create_task(
+                    asyncio.to_thread(obj.download, **kw),
+                ),
+            )
+
+        await asyncio.gather(*tasks)
