@@ -6,7 +6,7 @@ General-purpose resource downloading.
 import re
 from email.utils import parsedate_to_datetime
 from pathlib import Path
-from typing import Union
+from typing import Callable, Union
 
 import requests
 from rich.progress import Progress
@@ -95,7 +95,11 @@ class GkmasResource:
                 media_class = GkmasAdventure
             else:
                 media_class = GkmasDummyMedia
-            self._media = media_class(self._idname, self._download_bytes)
+            self._media = media_class(
+                self._idname,
+                self._download_bytes,
+                self.reporter.update,
+            )
 
         return self._media
 
@@ -131,10 +135,11 @@ class GkmasResource:
                 If False, the object is directly downloaded to the specified 'path'.
         """
 
-        # to be accessed in _download_bytes(), which will be called
-        # as a function pointer in Media and can't access kwargs
-        self._progress = progress
-        self._task_id = task_id
+        self.reporter = ProgressReporter(
+            title=self._idname,  # only used as a fallback if no progress is provided
+            progress=progress,
+            task_id=task_id,
+        )
 
         path = self._download_path(path, categorize)
         self._get_media().export(path, **kwargs)
@@ -184,17 +189,11 @@ class GkmasResource:
 
         return Path(*filename.split("_"))
 
-    def _download_bytes(self) -> dict:
+    def _download_bytes(self, reporter: Callable) -> dict:
         """
         [INTERNAL] Downloads the resource from the server and performs sanity checks
         on HTTP status code, size, and MD5 hash. Returns the resource as raw bytes.
         """
-
-        reporter = ProgressReporter(
-            desc=self._idname,  # only used as a fallback if no progress is provided
-            progress=self._progress,
-            task_id=self._task_id,
-        )
 
         with requests.get(self._url, timeout=10, stream=True) as response:
             response.raise_for_status()
@@ -207,7 +206,7 @@ class GkmasResource:
                 if not chunk:
                     continue
                 chunks.append(chunk)
-                reporter.update(
+                reporter(
                     "Downloading",
                     advance=len(chunk),
                     total=total_size,

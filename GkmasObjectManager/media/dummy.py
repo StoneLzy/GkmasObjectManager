@@ -38,10 +38,14 @@ class GkmasDummyMedia:
 
     ENABLE_CACHE = True
 
-    def __init__(self, name: str, downloader: Callable[[], dict]):
+    def __init__(self, name: str, downloader: Callable[[], dict], reporter: Callable):
         self.name = name  # only for logging
         self._name_ext = name.split(".")[-1][:-1].lower()
         self.downloader = downloader  # lazy downloader
+        self.reporter = reporter  # progress reporter
+        # The naming is a bit confusing, and I'm still looking for an alternative.
+        # - "Resource.reporter: ProgressReporter" refers to the instance
+        # - "Media.reporter: Callable" refers to the ProgressReporter.update() function
 
         self.mtime = None
         self.raw = None  # raw binary data (we don't want to reencode known formats)
@@ -159,7 +163,7 @@ class GkmasDummyMedia:
     def _get_raw(self) -> bytes:
         if self.raw is not None:
             return self.raw  # read from cache
-        data = self.downloader()
+        data = self.downloader(self.reporter)
         self.mtime = data["mtime"]  # unconditionally cache, as a metadata field
         if self.ENABLE_CACHE:
             self.raw = data["bytes"]

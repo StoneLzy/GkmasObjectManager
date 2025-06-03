@@ -75,7 +75,7 @@ class ProgressReporter:
     or passing progress updates to a GUI.
 
     Args:
-        desc (str): Description of the task, usually a filename.
+        title (str): "Master" description for the task, usually a filename.
         progress (Progress, optional): Rich Progress instance for console output.
             Should only be instantiated in GkmasManifest.download()
             for a batch of tasks, to support multiple bar updates.
@@ -86,27 +86,31 @@ class ProgressReporter:
 
     def __init__(
         self,
-        desc: str,
+        title: str,
         progress: Union[Progress, None] = None,
         task_id: Union[int, None] = None,
     ):
+        self.title = title
         if not progress:
             assert (
                 task_id is None
             ), "task_id should only be provided with a Progress instance"
             self.progress = Progress()
-            self.task_id = self.progress.add_task(desc, total=total)
+            self.progress.start()
+            self.task_id = self.progress.add_task(title)
+            self.is_standalone = True
         else:
             assert (
                 task_id is not None
             ), "task_id should be provided with a Progress instance"
             self.progress = progress
             self.task_id = task_id
+            self.is_standalone = False
 
     def update(
         self,
         stage: str,
-        completed: Union[int, None] = None,
+        advance: Union[int, None] = None,
         total: Union[int, None] = None,
     ):
         """
@@ -115,12 +119,21 @@ class ProgressReporter:
         Args:
             stage (str): Description of the current stage
                 (download, deobfuscate, convert, etc.)
-            completed (int): Usually the number of bytes downloaded.
-        total (int): Usually the total file size in bytes.
+            advance (int): Usually the number of bytes in a chunk.
+            total (int): Usually the total file size in bytes.
         """
+
         self.progress.update(
             self.task_id,
-            description=f"{stage} {self.progress.format_size(completed)}",
-            completed=completed,
+            description=f"{self.title} - {stage}",
+            advance=advance,
             total=total,
         )
+
+    def stop(self):
+        """Stops the progress bar and prints it to the console."""
+        if self.is_standalone:
+            self.progress.stop()
+        else:
+            self.progress.update(self.task_id, completed=True)
+            self.progress.refresh()

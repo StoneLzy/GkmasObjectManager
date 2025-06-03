@@ -426,10 +426,11 @@ class GkmasManifest:
 
         tasks = []
         progress = Progress()
+        progress.start()
 
         for obj, kw in obj_kw:
             kw["progress"] = progress
-            kw["task_id"] = progress.add_task(obj.name)
+            kw["task_id"] = progress.add_task(obj._idname)
             tasks.append(
                 asyncio.create_task(
                     asyncio.to_thread(obj.download, **kw),
@@ -437,3 +438,4 @@ class GkmasManifest:
             )
 
         await asyncio.gather(*tasks)
+        progress.stop()
