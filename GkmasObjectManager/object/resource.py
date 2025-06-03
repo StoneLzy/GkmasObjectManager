@@ -98,7 +98,7 @@ class GkmasResource:
             self._media = media_class(
                 self._idname,
                 self._download_bytes,
-                self.reporter.update,
+                self.reporter,
             )
 
         return self._media
@@ -189,10 +189,14 @@ class GkmasResource:
 
         return Path(*filename.split("_"))
 
-    def _download_bytes(self, reporter: Callable) -> dict:
+    def _download_bytes(self, reporter: ProgressReporter) -> dict:
         """
         [INTERNAL] Downloads the resource from the server and performs sanity checks
         on HTTP status code, size, and MD5 hash. Returns the resource as raw bytes.
+
+        Args:
+            reporter (ProgressReporter): A progress reporter instance to update the download status.
+                Passed from Media, which in turn is passed from Resource.download().
         """
 
         with requests.get(self._url, timeout=10, stream=True) as response:
@@ -206,7 +210,7 @@ class GkmasResource:
                 if not chunk:
                     continue
                 chunks.append(chunk)
-                reporter(
+                reporter.update(
                     "Downloading",
                     advance=len(chunk),
                     total=total_size,

@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Callable
 from zipfile import ZipFile
 
-from ..utils import Logger
+from ..utils import Logger, ProgressReporter
 
 logger = Logger()
 
@@ -22,6 +22,7 @@ class GkmasDummyMedia:
     Attributes:
         name (str): Name of the media file (for logging purposes).
         downloader (Callable): Function to lazily download raw bytes.
+        reporter (ProgressReporter): Reporter for download progress.
         mtime (float): Last modified time of the media file as a timestamp.
         mimetype (str): Media type (e.g., "image", "audio", "video").
         raw (bytes): Raw binary data of the media file.
@@ -38,14 +39,16 @@ class GkmasDummyMedia:
 
     ENABLE_CACHE = True
 
-    def __init__(self, name: str, downloader: Callable[[], dict], reporter: Callable):
+    def __init__(
+        self,
+        name: str,
+        downloader: Callable[[], dict],
+        reporter: ProgressReporter,
+    ):
         self.name = name  # only for logging
         self._name_ext = name.split(".")[-1][:-1].lower()
         self.downloader = downloader  # lazy downloader
-        self.reporter = reporter  # progress reporter
-        # The naming is a bit confusing, and I'm still looking for an alternative.
-        # - "Resource.reporter: ProgressReporter" refers to the instance
-        # - "Media.reporter: Callable" refers to the ProgressReporter.update() function
+        self.reporter = reporter
 
         self.mtime = None
         self.raw = None  # raw binary data (we don't want to reencode known formats)
@@ -172,6 +175,7 @@ class GkmasDummyMedia:
     def _get_converted(self) -> bytes:
         if self.converted is not None:
             return self.converted  # assumes proper invalidation beforehand
+        self.reporter.update("Converting")
         converted = self._convert(self._get_raw())
         if self.ENABLE_CACHE:
             self.converted = converted
@@ -202,6 +206,8 @@ class GkmasDummyMedia:
 
     def _export_raw(self, path: Path):
 
+        self.reporter.start()
+
         if path.exists():
             logger.warning(f"{self.name} already exists, aborting")
             return
@@ -209,7 +215,8 @@ class GkmasDummyMedia:
         path.write_bytes(self._get_raw())
         if self.mtime:
             os.utime(path, (self.mtime, self.mtime))
-        logger.success(f"{self.name} downloaded")
+
+        self.reporter.stop("Downloaded")
 
     def _export_converted(self, path: Path, **kwargs):
 
@@ -229,6 +236,8 @@ class GkmasDummyMedia:
             logger.warning(f"{_name} already exists, aborting")
             return
 
+        self.reporter.start()
+
         data = self.get_data(**kwargs)
         mimesubtype = data["mimetype"].split("/")[1]
         path = path.with_suffix(f".{mimesubtype}")  # true mimesubtype
@@ -236,13 +245,15 @@ class GkmasDummyMedia:
         path.write_bytes(data["bytes"])
         if self.mtime:
             os.utime(path, (self.mtime, self.mtime))
-        logger.success(f"{self.name} downloaded and converted to {mimesubtype.upper()}")
 
         # This can't be integrated into Audio since _convert() is bytes-to-bytes
         if mimesubtype == "zip" and kwargs.get("unpack_subsongs", False):
+            self.reporting.update("Unpacking")
             with ZipFile(path) as z:
                 z.extractall(path.parent)  # surprisingly, doesn't keep mtime's
                 for file in z.namelist():
                     os.utime(path.parent / file, (self.mtime, self.mtime))
             path.unlink()
-            logger.success(f"{self.name} unpacked to {path.parent}")
+            self.reporter.stop(f"Downloaded and unpacked to {path.parent}")
+        else:
+            self.reporter.stop(f"Downloaded and converted to {mimesubtype.upper()}")

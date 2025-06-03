@@ -9,7 +9,7 @@ from ..const import UNITY_SIGNATURE, PathArgtype
 from ..media import GkmasDummyMedia
 from ..media.audio import GkmasUnityAudio
 from ..media.image import GkmasUnityImage
-from ..utils import Logger
+from ..utils import Logger, ProgressReporter
 from .deobfuscate import GkmasAssetBundleDeobfuscator
 from .resource import GkmasResource
 
@@ -75,16 +75,21 @@ class GkmasAssetBundle(GkmasResource):
 
         return self._media
 
-    def _download_bytes(self) -> dict:
+    def _download_bytes(self, reporter: ProgressReporter) -> dict:
         """
         [INTERNAL] Downloads, and optionally deobfuscates, the assetbundle as raw bytes.
         Sanity checks are implemented in parent class GkmasResource.
+
+        Args:
+            reporter (ProgressReporter): A progress reporter instance to update the download status.
+                Passed from Media, which in turn is passed from AssetBundle.download().
         """
 
         data = super()._download_bytes()
         _bytes, _mtime = data["bytes"], data["mtime"]
 
         if not _bytes.startswith(UNITY_SIGNATURE):
+            reporter.update("Deobfuscating")
             _bytes = GkmasAssetBundleDeobfuscator(self.name).process(_bytes)
             if not _bytes.startswith(UNITY_SIGNATURE):
                 logger.warning(f"{self._idname} downloaded but LEFT OBFUSCATED")

@@ -96,7 +96,6 @@ class ProgressReporter:
                 task_id is None
             ), "task_id should only be provided with a Progress instance"
             self.progress = Progress()
-            self.progress.start()
             self.task_id = self.progress.add_task(title)
             self.is_standalone = True
         else:
@@ -106,6 +105,16 @@ class ProgressReporter:
             self.progress = progress
             self.task_id = task_id
             self.is_standalone = False
+
+    def start(self):
+        """Starts the progress bar with the initial title."""
+        if self.is_standalone:
+            self.progress.start()
+        self.progress.update(
+            self.task_id,
+            description=f"{self.title} - Starting",
+            completed=False,
+        )
 
     def update(
         self,
@@ -130,10 +139,14 @@ class ProgressReporter:
             total=total,
         )
 
-    def stop(self):
+    def stop(self, message: str = "Completed"):
         """Stops the progress bar and prints it to the console."""
+        self.progress.update(
+            self.task_id,
+            description=f"{self.title} - {message}",
+            completed=True,
+        )
         if self.is_standalone:
             self.progress.stop()
         else:
-            self.progress.update(self.task_id, completed=True)
             self.progress.refresh()
