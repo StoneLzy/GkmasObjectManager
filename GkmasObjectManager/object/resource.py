@@ -65,7 +65,10 @@ class GkmasResource:
         # 'self._media' holds a class from media/ that implements
         # format-specific extraction, if applicable.
         # Not set at initialization, since downloading bytes is a prerequisite.
-        self._media = None
+        self._media: Union[GkmasDummyMedia, None] = None
+
+        # placeholder for download progress reporter
+        self._reporter: Union[ProgressReporter, None] = None
 
     def __repr__(self) -> str:
         return f"<GkmasResource {self._idname}>"
@@ -98,7 +101,7 @@ class GkmasResource:
             self._media = media_class(
                 self._idname,
                 self._download_bytes,
-                self.reporter,
+                self._reporter,
             )
 
         return self._media
@@ -135,7 +138,7 @@ class GkmasResource:
                 If False, the object is directly downloaded to the specified 'path'.
         """
 
-        self.reporter = ProgressReporter(
+        self._reporter = ProgressReporter(
             title=self._idname,  # only used as a fallback if no progress is provided
             progress=progress,
             task_id=task_id,
@@ -189,14 +192,10 @@ class GkmasResource:
 
         return Path(*filename.split("_"))
 
-    def _download_bytes(self, reporter: ProgressReporter) -> dict:
+    def _download_bytes(self) -> dict:
         """
         [INTERNAL] Downloads the resource from the server and performs sanity checks
         on HTTP status code, size, and MD5 hash. Returns the resource as raw bytes.
-
-        Args:
-            reporter (ProgressReporter): A progress reporter instance to update the download status.
-                Passed from Media, which in turn is passed from Resource.download().
         """
 
         with requests.get(self._url, timeout=10, stream=True) as response:
@@ -210,7 +209,7 @@ class GkmasResource:
                 if not chunk:
                     continue
                 chunks.append(chunk)
-                reporter.update(
+                self._reporter.update(
                     "Downloading",
                     advance=len(chunk),
                     total=total_size,

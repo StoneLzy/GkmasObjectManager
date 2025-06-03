@@ -166,7 +166,7 @@ class GkmasDummyMedia:
     def _get_raw(self) -> bytes:
         if self.raw is not None:
             return self.raw  # read from cache
-        data = self.downloader(self.reporter)
+        data = self.downloader()
         self.mtime = data["mtime"]  # unconditionally cache, as a metadata field
         if self.ENABLE_CACHE:
             self.raw = data["bytes"]
