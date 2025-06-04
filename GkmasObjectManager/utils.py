@@ -119,6 +119,14 @@ class ProgressReporter:
             self.task_id = task_id
             self.is_standalone = False
 
+    def _rich_descr(
+        self,
+        stage: str,
+        stage_color: str = "cyan",
+        title_color: str = "white",
+    ) -> str:
+        return f"[{title_color}]{self.title}[/] - [{stage_color}]{stage}[/]"
+
     def start(self):
         """Starts the progress bar with the initial title."""
         if self.is_standalone:
@@ -127,7 +135,7 @@ class ProgressReporter:
             self.progress.update(self.task_id, visible=True)
         self.progress.update(
             self.task_id,
-            description=f"{self.title} - [cyan]Starting[/cyan]",
+            description=self._rich_descr("Starting"),
             total=self.total,
         )
 
@@ -147,7 +155,7 @@ class ProgressReporter:
 
         self.progress.update(
             self.task_id,
-            description=f"{self.title} - [cyan]{stage}[/cyan]",
+            description=self._rich_descr(stage),
             advance=advance,
         )
 
@@ -157,13 +165,11 @@ class ProgressReporter:
             self.progress.stop()
         else:
             self.progress.remove_task(self.task_id)
-        self.progress.print(f"[white]{self.title}[/white] - [green]{message}[/green]")
+        self.progress.print(self._rich_descr(message, stage_color="bold green"))
 
     def warning(self, message: str):
         """
         Logs a warning message to the console.
         Used in media/ where logger.warning() would get overwritten by progress bars.
         """
-        self.progress.print(
-            f"[yellow]{self.title}[/yellow] - [yellow]{message}[/yellow]"
-        )
+        self.progress.print(self._rich_descr(message, stage_color="bold yellow"))
