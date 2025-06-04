@@ -76,27 +76,33 @@ class ProgressReporter:
 
     Args:
         title (str): "Master" description for the task, usually a filename.
-        progress (Progress, optional): Rich Progress instance for console output.
-            Should only be instantiated in GkmasManifest.download()
-            for a batch of tasks, to support multiple bar updates.
-            If None, a disposable Progress instance is created.
-        task_id (int, optional): Task ID for GUI progress updates.
-            Again, should only be provided by GkmasManifest.download().
     """
 
-    def __init__(
+    def __init__(self, title: str):
+        self.title = title
+
+    def register(
         self,
-        title: str,
         progress: Union[Progress, None] = None,
         task_id: Union[int, None] = None,
     ):
-        self.title = title
+        """
+        Registers the progress reporter with a Progress instance or task ID.
+
+        Args:
+            progress (Progress, optional): Rich Progress instance for console output.
+                Should only be instantiated in GkmasManifest.download()
+                for a batch of tasks, to support multiple bar updates.
+                If None, a disposable Progress instance is created.
+            task_id (int, optional): Task ID for GUI progress updates.
+                Again, should only be provided by GkmasManifest.download().
+        """
         if not progress:
             assert (
                 task_id is None
             ), "task_id should only be provided with a Progress instance"
             self.progress = Progress()
-            self.task_id = self.progress.add_task(title)
+            self.task_id = self.progress.add_task(self.title)
             self.is_standalone = True
         else:
             assert (

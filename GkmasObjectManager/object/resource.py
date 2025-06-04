@@ -6,7 +6,7 @@ General-purpose resource downloading.
 import re
 from email.utils import parsedate_to_datetime
 from pathlib import Path
-from typing import Callable, Union
+from typing import Union
 
 import requests
 from rich.progress import Progress
@@ -68,7 +68,7 @@ class GkmasResource:
         self._media: Union[GkmasDummyMedia, None] = None
 
         # placeholder for download progress reporter
-        self._reporter: Union[ProgressReporter, None] = None
+        self._reporter = ProgressReporter(title=self._idname)
 
     def __repr__(self) -> str:
         return f"<GkmasResource {self._idname}>"
@@ -138,12 +138,7 @@ class GkmasResource:
                 If False, the object is directly downloaded to the specified 'path'.
         """
 
-        self._reporter = ProgressReporter(
-            title=self._idname,  # only used as a fallback if no progress is provided
-            progress=progress,
-            task_id=task_id,
-        )
-
+        self._reporter.register(progress, task_id)
         path = self._download_path(path, categorize)
         self._get_media().export(path, **kwargs)
 
