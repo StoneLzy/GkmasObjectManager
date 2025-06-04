@@ -154,3 +154,12 @@ class ProgressReporter:
         else:
             self.progress.remove_task(self.task_id)
         self.progress.print(f"[white]{self.title}[/white] - [green]{message}[/green]")
+
+    def warning(self, message: str):
+        """
+        Logs a warning message to the console.
+        Used in media/ where logger.warning() would get overwritten by progress bars.
+        """
+        self.progress.print(
+            f"[yellow]{self.title}[/yellow] - [yellow]{message}[/yellow]"
+        )

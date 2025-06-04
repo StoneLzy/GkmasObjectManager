@@ -10,10 +10,7 @@ from typing import Tuple, Union
 import UnityPy
 from PIL import Image
 
-from ..utils import Logger
 from .dummy import GkmasDummyMedia
-
-logger = Logger()
 
 
 class GkmasImage(GkmasDummyMedia):
@@ -42,8 +39,8 @@ class GkmasImage(GkmasDummyMedia):
         try:
             img.save(io, format=self.converted_format, quality=100)
         except OSError:  # cannot write mode RGBA as {self.converted_format}
-            logger.warning(
-                f"{self.converted_format} doesn't support RGBA mode, fallback to PNG."
+            self.reporter.warning(
+                f"{self.converted_format.upper()} doesn't support RGBA mode, fallback to PNG."
             )
             self.converted_format = "png"
             img.save(io, format="PNG", quality=100)

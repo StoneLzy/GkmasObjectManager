@@ -10,9 +10,7 @@ from pathlib import Path
 from typing import Callable
 from zipfile import ZipFile
 
-from ..utils import Logger, ProgressReporter
-
-logger = Logger()
+from ..utils import ProgressReporter
 
 
 class GkmasDummyMedia:
@@ -197,7 +195,7 @@ class GkmasDummyMedia:
             try:
                 self._export_converted(path, **kwargs)
             except Exception as e:
-                logger.warning(
+                self.reporter.warning(
                     f"{self.name} failed to convert, fallback to rawdump; exception to follow"
                 )
                 self._export_raw(path)
@@ -210,7 +208,7 @@ class GkmasDummyMedia:
         self.reporter.start()
 
         if path.exists():
-            logger.warning(f"{self.name} already exists, aborting")
+            self.reporter.warning(f"{self.name} already exists, aborting")
             return
 
         path.write_bytes(self._get_raw())
@@ -228,13 +226,13 @@ class GkmasDummyMedia:
             # self.name is heavily reused in children, and we don't want to
             # change Media's init interface just for reassembly here
             _name = f"{self.name.split(".")[0]}.{_mimesubtype}'"
-            logger.warning(f"{_name} already exists, aborting")
+            self.reporter.warning(f"{_name} already exists, aborting")
             return
 
         # additional check for existing .zip; yet the unpacked case is still uncovered
         if self._name_ext == "acb" and path.with_suffix(".zip").exists():
             _name = f"{self.name.split('.')[0]}.zip"
-            logger.warning(f"{_name} already exists, aborting")
+            self.reporter.warning(f"{_name} already exists, aborting")
             return
 
         self.reporter.start()

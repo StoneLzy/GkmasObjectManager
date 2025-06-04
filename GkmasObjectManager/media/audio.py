@@ -15,10 +15,7 @@ from zipfile import ZipFile, ZipInfo
 import UnityPy
 from pydub import AudioSegment
 
-from ..utils import Logger
 from .dummy import GkmasDummyMedia
-
-logger = Logger()
 
 
 class GkmasAudio(GkmasDummyMedia):

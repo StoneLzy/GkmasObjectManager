@@ -5,10 +5,7 @@ USM video conversion plugin for GkmasResource.
 
 import ffmpeg
 
-from ..utils import Logger
 from .dummy import GkmasDummyMedia
-
-logger = Logger()
 
 
 class GkmasUSMVideo(GkmasDummyMedia):
