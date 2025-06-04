@@ -26,9 +26,12 @@ m = gom.fetch()
 
 class CacheHandler:
 
+    cwd: Path
+    args: dict
+
     def __init__(self, cwd: Path, args=None):
-        self.cwd = cwd
-        self.args = args
+        self.cwd = cwd.resolve()
+        self.args = args or {}
 
         if self.cwd.exists():
             assert self.cwd.is_dir(), f"{self.cwd} is not a directory"
@@ -107,6 +110,10 @@ class SudCacheHandler(CacheHandler):
 
 
 class AdvCacheHandler(CacheHandler):
+
+    _caption_map: dict
+    _caption_map_ready: bool
+    active: bool
 
     def __init__(self, cwd: Path, args=None):
         super().__init__(cwd, args)

@@ -44,6 +44,18 @@ class GkmasResource:
             Downloads the resource to the specified path.
     """
 
+    id: int
+    name: str
+    objectName: str
+    size: int
+    md5: str
+
+    _fields: list[str]
+    _idname: str
+    _url: str
+    _media: Optional[GkmasDummyMedia]
+    _reporter: ProgressReporter
+
     def __init__(self, info: dict, url_template: str):
         """
         Initializes a resource with the given information.

@@ -19,6 +19,14 @@ class GkmasObjectList:
             Only used when instantiating objects from the list.
     """
 
+    infos: list[dict]
+    base_class: object
+    url_template: str
+
+    _objects: list[object]
+    _id_idx: dict[int, int]
+    _name_idx: dict[str, int]
+
     def __init__(self, infos: list[dict], base_class: object, url_template: str):
         infos.sort(key=lambda x: x["id"])
 

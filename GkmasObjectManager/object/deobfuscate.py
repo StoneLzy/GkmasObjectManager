@@ -21,6 +21,11 @@ class GkmasAssetBundleDeobfuscator:
             Deobfuscates the given obfuscated bytes into plaintext.
     """
 
+    offset: int
+    stream_pos: int
+    header_len: int
+    mask: bytes
+
     def __init__(
         self,
         key: str,

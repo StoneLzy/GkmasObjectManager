@@ -55,6 +55,11 @@ class GkmasManifest:
         download_all(**kwargs) -> None
     """
 
+    revision: GkmasManifestRevision
+    assetbundles: GkmasObjectList
+    resources: GkmasObjectList
+    urlformat: str
+
     def __init__(self, jdict: dict, base_revision: int = 0):
         """
         [INTERNAL] Initializes a manifest from the given JSON dictionary.

@@ -20,6 +20,9 @@ class GkmasManifestRevision:
             while base > 0 indicates a diff to be applied to the base manifest.
     """
 
+    this: int
+    base: int
+
     def __init__(self, this: int, base: int = 0):
         assert this > 0, "'this' revision number must be positive."
         assert base >= 0, "'base' revision number must be non-negative."

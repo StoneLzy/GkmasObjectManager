@@ -74,16 +74,24 @@ class ProgressReporter:
     An interface for either printing a progress bar to the console,
     or passing progress updates to a GUI.
 
-    Args:
+    Attributes:
         title (str): "Master" description for the task, usually a filename.
         total (int): Number of units to process, usually the file size in bytes.
+        progress (Optional[Progress]): Rich Progress instance for console output.
+        task_id (Optional[int]): Task ID for GUI progress updates.
     """
+
+    title: str
+    total: int
+    progress: Optional[Progress]
+    task_id: Optional[int]
+    is_standalone: bool = False
 
     def __init__(self, title: str, total: int = 0):
         self.title = title
         self.total = total
-        self.progress: Optional[Progress] = None
-        self.task_id: Optional[int] = None
+        self.progress = None
+        self.task_id = None
 
     def register(
         self,

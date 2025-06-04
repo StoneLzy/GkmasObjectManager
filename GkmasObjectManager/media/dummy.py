@@ -7,7 +7,7 @@ as well as a fallback for unknown media types.
 
 import os
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Optional, Tuple, Union
 from zipfile import ZipFile
 
 from ..utils import ProgressReporter
@@ -27,6 +27,7 @@ class GkmasDummyMedia:
         raw_format (str): Format of the raw media data.
         converted (bytes): Converted binary data of the media file, if applicable.
         converted_format (str): Format of the converted media data.
+        default_converted_format (str): Default format for conversion, if applicable.
 
     Methods:
         get_data(**kwargs) -> dict:
@@ -35,7 +36,21 @@ class GkmasDummyMedia:
             Exports the media to the specified path.
     """
 
-    ENABLE_CACHE = True
+    ENABLE_CACHE: bool = True
+
+    name: str
+    _name_ext: str
+    mtime: Optional[float]
+    downloader: Callable[[], dict]
+    reporter: ProgressReporter
+
+    mimetype: str
+    raw: Optional[bytes]
+    raw_format: str
+    converted: Optional[bytes]
+    converted_format: str
+    default_converted_format: str
+    image_resize: Optional[Union[str, Tuple[int, int]]]
 
     def __init__(
         self,
@@ -66,8 +81,7 @@ class GkmasDummyMedia:
         #   where we can return early if image_resize hits cache in _convert(),
         #   but about *correctness* where the same format with a different
         #   image_resize wouldn't even trigger _convert() otherwise.
-        # This is of type Union[None, str, Tuple[int, int]],
-        #   which used to be a global const, but was soon deprecated
+        # This used to be a global const, but was soon deprecated
         #   since we use kwargs.get() and can't enforce type hint.
         # On the other hand, we can't record the sanitized "new size" tuple here,
         #   since it's about checking cache against user input *before* conversion,
@@ -89,7 +103,7 @@ class GkmasDummyMedia:
 
         Args:
             {mimetype}_format (str): Desired format for the media type.
-            image_resize (Union[None, str, Tuple[int, int]]) = None: Image resizing argument.
+            image_resize (Union[str, Tuple[int, int]], optional) = None: Image resizing argument.
                 If None, image is downloaded as is.
                 If str (must contain exactly one ':'), image is resized to the specified ratio.
                 If Tuple[int, int], image is resized to the specified exact dimensions.
