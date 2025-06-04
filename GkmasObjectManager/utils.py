@@ -3,7 +3,7 @@ utils.py
 General-purpose utilities: hashing, rich console logger.
 """
 
-from typing import Callable, Union
+from typing import Callable, Optional
 
 from cryptography.hazmat.primitives import hashes
 from rich.console import Console
@@ -85,8 +85,8 @@ class ProgressReporter:
 
     def register(
         self,
-        progress: Union[Progress, None] = None,
-        task_id: Union[int, None] = None,
+        progress: Optional[Progress] = None,
+        task_id: Optional[int] = None,
     ):
         """
         Registers the progress reporter with a Progress instance or task ID.
@@ -139,18 +139,14 @@ class ProgressReporter:
             total=self.total,
         )
 
-    def update(
-        self,
-        stage: str,
-        advance: Union[int, None] = None,
-    ):
+    def update(self, stage: str, advance: Optional[int] = None):
         """
         Updates the progress bar by the specified number of units.
 
         Args:
             stage (str): Description of the current stage
                 (download, deobfuscate, convert, etc.)
-            advance (int): Usually the number of bytes in a chunk.
+            advance (int, optional): Usually the number of bytes in a chunk.
         """
 
         self.progress.update(

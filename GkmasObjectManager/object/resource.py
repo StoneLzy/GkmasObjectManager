@@ -6,7 +6,7 @@ General-purpose resource downloading.
 import re
 from email.utils import parsedate_to_datetime
 from pathlib import Path
-from typing import Union
+from typing import Optional
 
 import requests
 from rich.progress import Progress
@@ -65,7 +65,7 @@ class GkmasResource:
         # 'self._media' holds a class from media/ that implements
         # format-specific extraction, if applicable.
         # Not set at initialization, since downloading bytes is a prerequisite.
-        self._media: Union[GkmasDummyMedia, None] = None
+        self._media: Optional[GkmasDummyMedia] = None
 
         # placeholder for download progress reporter
         self._reporter = ProgressReporter(title=self._idname, total=self.size)
@@ -124,8 +124,8 @@ class GkmasResource:
         self,
         path: PathArgtype = DEFAULT_DOWNLOAD_PATH,
         categorize: bool = True,
-        progress: Union[Progress, None] = None,
-        task_id: Union[int, None] = None,
+        progress: Optional[Progress] = None,
+        task_id: Optional[int] = None,
         **kwargs,
     ):
         """
@@ -136,6 +136,10 @@ class GkmasResource:
                 If a directory, subdirectories are auto-determined based on the resource name.
             categorize (bool) = True: Whether to put the downloaded object into subdirectories.
                 If False, the object is directly downloaded to the specified 'path'.
+            progress (Progress, optional): A Progress instance to register the progress reporter.
+                If None, a disposable Progress instance is created.
+            task_id (int, optional): Task ID to register the progress reporter.
+                Must be None if progress is None, and vice versa.
         """
 
         self._reporter.register(progress, task_id)
