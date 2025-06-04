@@ -83,15 +83,13 @@ class ProgressReporter:
 
     title: str
     total: int
-    progress: Optional[Progress]
-    task_id: Optional[int]
+    progress: Optional[Progress] = None
+    task_id: Optional[int] = None
     is_standalone: bool = False
 
     def __init__(self, title: str, total: int = 0):
         self.title = title
         self.total = total
-        self.progress = None
-        self.task_id = None
 
     def register(
         self,

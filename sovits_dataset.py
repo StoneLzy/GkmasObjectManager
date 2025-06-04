@@ -111,14 +111,12 @@ class SudCacheHandler(CacheHandler):
 
 class AdvCacheHandler(CacheHandler):
 
-    _caption_map: dict
-    _caption_map_ready: bool
     active: bool
+    _caption_map: dict = {}
+    _caption_map_ready: bool = False
 
     def __init__(self, cwd: Path, args=None):
         super().__init__(cwd, args)
-        self._caption_map = {}
-        self._caption_map_ready = False
         self.active = args.caption
 
     def _rectify_filename(self, p: Path) -> str:

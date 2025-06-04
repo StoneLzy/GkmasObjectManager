@@ -40,17 +40,30 @@ class GkmasDummyMedia:
 
     name: str
     _name_ext: str
-    mtime: Optional[float]
+    mtime: float = 0.0
     downloader: Callable[[], dict]
     reporter: ProgressReporter
 
-    mimetype: str
-    raw: Optional[bytes]
-    raw_format: str
-    converted: Optional[bytes]
-    converted_format: str
-    default_converted_format: str
-    image_resize: Optional[Union[str, Tuple[int, int]]]
+    # Children should override raw_format if raw bytes is "ready"
+    #   or converted_format as the default target, but **not both.**
+    # On the other hand, self.mimetype since it's mandatory.
+    mimetype: str = ""
+    raw: Optional[bytes] = None
+    raw_format: str = ""
+    converted: Optional[bytes] = None
+    converted_format: str = ""
+    default_converted_format: str = ""
+
+    # This can't be integrated into Image since it's not about efficiency
+    #   where we can return early if image_resize hits cache in _convert(),
+    #   but about *correctness* where the same format with a different
+    #   image_resize wouldn't even trigger _convert() otherwise.
+    # This used to be a global const, but was soon deprecated
+    #   since we use kwargs.get() and can't enforce type hint.
+    # On the other hand, we can't record the sanitized "new size" tuple here,
+    #   since it's about checking cache against user input *before* conversion,
+    #   and we don't want to move _determine_new_size() to this class.
+    image_resize: Optional[Union[str, Tuple[int, int]]] = None
 
     def __init__(
         self,
@@ -62,31 +75,7 @@ class GkmasDummyMedia:
         self._name_ext = name.split(".")[-1][:-1].lower()
         self.downloader = downloader  # lazy downloader
         self.reporter = reporter
-
-        self.mtime = None
-        self.raw = None  # raw binary data (we don't want to reencode known formats)
-        self.converted = None  # converted binary data (if applicable)
-
-        # Children should override raw_format if raw bytes is "ready"
-        #   or converted_format as the default target, but **not both.**
-        # This mutual exclusivity forces the following fallbacks
-        #   to appear here, otherwise we get AttributeError's.
-        # This isn't a problem for self.mimetype since it's mandatory.
-        self.raw_format = ""
-        self.converted_format = ""
-        self.default_converted_format = ""
         self._init_mimetype()
-
-        # This can't be integrated into Image since it's not about efficiency
-        #   where we can return early if image_resize hits cache in _convert(),
-        #   but about *correctness* where the same format with a different
-        #   image_resize wouldn't even trigger _convert() otherwise.
-        # This used to be a global const, but was soon deprecated
-        #   since we use kwargs.get() and can't enforce type hint.
-        # On the other hand, we can't record the sanitized "new size" tuple here,
-        #   since it's about checking cache against user input *before* conversion,
-        #   and we don't want to move _determine_new_size() to this class.
-        self.image_resize = None
 
     def _init_mimetype(self):
         self.mimetype = ""  # TO BE OVERRIDDEN (e.g., "image", "audio", "video")

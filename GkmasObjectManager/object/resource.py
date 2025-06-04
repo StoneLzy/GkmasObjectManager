@@ -53,7 +53,7 @@ class GkmasResource:
     _fields: list[str]
     _idname: str
     _url: str
-    _media: Optional[GkmasDummyMedia]
+    _media: Optional[GkmasDummyMedia] = None
     _reporter: ProgressReporter
 
     def __init__(self, info: dict, url_template: str):
@@ -73,11 +73,6 @@ class GkmasResource:
 
         self._idname = f"RS[{self.id:05}] '{self.name}'"
         self._url = url_template.format(o=self.objectName)
-
-        # 'self._media' holds a class from media/ that implements
-        # format-specific extraction, if applicable.
-        # Not set at initialization, since downloading bytes is a prerequisite.
-        self._media: Optional[GkmasDummyMedia] = None
 
         # placeholder for download progress reporter
         self._reporter = ProgressReporter(title=self._idname, total=self.size)
