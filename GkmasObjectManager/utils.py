@@ -110,17 +110,19 @@ class ProgressReporter:
         """Starts the progress bar with the initial title."""
         if self.is_standalone:
             self.progress.start()
+        else:
+            self.progress.update(self.task_id, visible=True)
         self.progress.update(
             self.task_id,
-            description=f"{self.title} - Starting",
+            description=f"{self.title} - [cyan]Starting[/cyan]",
             completed=False,
         )
 
     def update(
         self,
         stage: str,
-        advance: Union[int, None] = None,
-        total: Union[int, None] = None,
+        advance: int = 1,
+        total: int = 1,  # shows 100% by default
     ):
         """
         Updates the progress bar by the specified number of units.
@@ -134,19 +136,15 @@ class ProgressReporter:
 
         self.progress.update(
             self.task_id,
-            description=f"{self.title} - {stage}",
+            description=f"{self.title} - [cyan]{stage}[/cyan]",
             advance=advance,
             total=total,
         )
 
     def stop(self, message: str = "Completed"):
         """Stops the progress bar and prints it to the console."""
-        self.progress.update(
-            self.task_id,
-            description=f"{self.title} - {message}",
-            completed=True,
-        )
         if self.is_standalone:
             self.progress.stop()
         else:
-            self.progress.refresh()
+            self.progress.remove_task(self.task_id)
+        self.progress.print(f"[white]{self.title}[/white] - [green]{message}[/green]")

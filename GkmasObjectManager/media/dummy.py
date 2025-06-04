@@ -175,8 +175,9 @@ class GkmasDummyMedia:
     def _get_converted(self) -> bytes:
         if self.converted is not None:
             return self.converted  # assumes proper invalidation beforehand
+        raw = self._get_raw()
         self.reporter.update("Converting")
-        converted = self._convert(self._get_raw())
+        converted = self._convert(raw)
         if self.ENABLE_CACHE:
             self.converted = converted
         return converted
@@ -248,7 +249,7 @@ class GkmasDummyMedia:
 
         # This can't be integrated into Audio since _convert() is bytes-to-bytes
         if mimesubtype == "zip" and kwargs.get("unpack_subsongs", False):
-            self.reporting.update("Unpacking")
+            self.reporter.update("Unpacking")
             with ZipFile(path) as z:
                 z.extractall(path.parent)  # surprisingly, doesn't keep mtime's
                 for file in z.namelist():

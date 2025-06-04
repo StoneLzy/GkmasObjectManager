@@ -430,7 +430,7 @@ class GkmasManifest:
 
         for obj, kw in obj_kw:
             kw["progress"] = progress
-            kw["task_id"] = progress.add_task(obj._idname)
+            kw["task_id"] = progress.add_task(obj._idname, visible=False)
             tasks.append(
                 asyncio.create_task(
                     asyncio.to_thread(obj.download, **kw),
