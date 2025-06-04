@@ -196,7 +196,7 @@ class GkmasDummyMedia:
                 self._export_converted(path, **kwargs)
             except Exception as e:
                 self.reporter.warning(
-                    f"{self.name} failed to convert, fallback to rawdump; exception to follow"
+                    "Conversion failed, fallback to rawdump; exception to follow"
                 )
                 self._export_raw(path)
                 raise e
@@ -208,14 +208,14 @@ class GkmasDummyMedia:
         self.reporter.start()
 
         if path.exists():
-            self.reporter.warning(f"{self.name} already exists, aborting")
+            self.reporter.warning("Already exists, aborting")
             return
 
         path.write_bytes(self._get_raw())
         if self.mtime:
             os.utime(path, (self.mtime, self.mtime))
 
-        self.reporter.stop("Downloaded")
+        self.reporter.success("Downloaded and rawdumped")
 
     def _export_converted(self, path: Path, **kwargs):
 
@@ -225,14 +225,12 @@ class GkmasDummyMedia:
         if _path.exists():
             # self.name is heavily reused in children, and we don't want to
             # change Media's init interface just for reassembly here
-            _name = f"{self.name.split(".")[0]}.{_mimesubtype}'"
-            self.reporter.warning(f"{_name} already exists, aborting")
+            self.reporter.warning(f"*.{_mimesubtype} already exists, aborting")
             return
 
         # additional check for existing .zip; yet the unpacked case is still uncovered
         if self._name_ext == "acb" and path.with_suffix(".zip").exists():
-            _name = f"{self.name.split('.')[0]}.zip"
-            self.reporter.warning(f"{_name} already exists, aborting")
+            self.reporter.warning("*.zip already exists, aborting")
             return
 
         self.reporter.start()
@@ -253,6 +251,6 @@ class GkmasDummyMedia:
                 for file in z.namelist():
                     os.utime(path.parent / file, (self.mtime, self.mtime))
             path.unlink()
-            self.reporter.stop(f"Downloaded and unpacked to {path.parent}")
+            self.reporter.success(f"Downloaded and unpacked to {path.parent}")
         else:
-            self.reporter.stop(f"Downloaded and converted to {mimesubtype.upper()}")
+            self.reporter.success(f"Downloaded and converted to {mimesubtype.upper()}")

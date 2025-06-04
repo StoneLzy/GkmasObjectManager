@@ -7,7 +7,7 @@ from ..const import UNITY_SIGNATURE
 from ..media import GkmasDummyMedia
 from ..media.audio import GkmasUnityAudio
 from ..media.image import GkmasUnityImage
-from ..utils import Logger
+from ..utils import Logger, ProgressReporter
 from .deobfuscate import GkmasAssetBundleDeobfuscator
 from .resource import GkmasResource
 
@@ -47,6 +47,8 @@ class GkmasAssetBundle(GkmasResource):
         super().__init__(info, url_template)
         self.name += ".unity3d"
         self._idname = f"AB[{self.id:05}] '{self.name}'"
+        self._reporter = ProgressReporter(title=self._idname, total=self.size)
+        # need to re-instantiate since self._idname has changed
 
     def __repr__(self) -> str:
         return f"<GkmasAssetBundle {self._idname}>"
@@ -90,7 +92,7 @@ class GkmasAssetBundle(GkmasResource):
             self._reporter.update("Deobfuscating")
             _bytes = GkmasAssetBundleDeobfuscator(self.name).process(_bytes)
             if not _bytes.startswith(UNITY_SIGNATURE):
-                logger.warning(f"{self._idname} downloaded but LEFT OBFUSCATED")
+                self._reporter.warning("Downloaded but LEFT OBFUSCATED")
                 # Unexpected things may happen...
                 # So unlike _download_bytes(), here we don't raise an error and abort.
 

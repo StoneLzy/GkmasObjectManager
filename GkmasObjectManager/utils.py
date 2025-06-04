@@ -82,6 +82,8 @@ class ProgressReporter:
     def __init__(self, title: str, total: int = 0):
         self.title = title
         self.total = total
+        self.progress: Optional[Progress] = None
+        self.task_id: Optional[int] = None
 
     def register(
         self,
@@ -129,6 +131,10 @@ class ProgressReporter:
 
     def start(self):
         """Starts the progress bar with the initial title."""
+
+        if not self.progress:
+            return
+
         if self.is_standalone:
             self.progress.start()
         else:
@@ -149,14 +155,21 @@ class ProgressReporter:
             advance (int, optional): Usually the number of bytes in a chunk.
         """
 
+        if not self.progress:
+            return
+
         self.progress.update(
             self.task_id,
             description=self._rich_descr(stage),
             advance=advance,
         )
 
-    def stop(self, message: str = "Completed"):
+    def success(self, message: str = "Completed"):
         """Stops the progress bar and prints it to the console."""
+
+        if not self.progress:
+            return
+
         if self.is_standalone:
             self.progress.stop()
         else:
