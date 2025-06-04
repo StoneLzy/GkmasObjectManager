@@ -32,7 +32,8 @@ class GkmasImage(GkmasDummyMedia):
             img = img.resize(image_resize, Image.LANCZOS)
 
         if img.mode == "RGBA":
-            if img.getchannel("A").getextrema() == (255, 255):  # fully opaque
+            if img.getchannel("A").getextrema()[0] >= 254:  # (255, 255) means opaque
+                # we leave a bit room for accumulated errors in decompression algo
                 img = img.convert("RGB")
 
         io = BytesIO()
