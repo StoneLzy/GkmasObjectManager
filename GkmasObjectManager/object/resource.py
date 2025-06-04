@@ -68,7 +68,7 @@ class GkmasResource:
         self._media: Union[GkmasDummyMedia, None] = None
 
         # placeholder for download progress reporter
-        self._reporter = ProgressReporter(title=self._idname)
+        self._reporter = ProgressReporter(title=self._idname, total=self.size)
 
     def __repr__(self) -> str:
         return f"<GkmasResource {self._idname}>"
@@ -198,17 +198,12 @@ class GkmasResource:
 
             chunks = []
             mtime = response.headers.get("Last-Modified", "")
-            total_size = int(response.headers.get("Content-Length", 0))
 
             for chunk in response.iter_content(chunk_size=8192):
                 if not chunk:
                     continue
                 chunks.append(chunk)
-                self._reporter.update(
-                    "Downloading",
-                    advance=len(chunk),
-                    total=total_size,
-                )
+                self._reporter.update("Downloading", advance=len(chunk))
 
             content = b"".join(chunks)
 

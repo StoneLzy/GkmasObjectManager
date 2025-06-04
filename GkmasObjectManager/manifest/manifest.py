@@ -12,7 +12,7 @@ from pathlib import Path
 import pandas as pd
 import yaml
 from google.protobuf.json_format import ParseError
-from rich.progress import Progress
+from rich.progress import BarColumn, Progress, TextColumn, TimeElapsedColumn
 
 from ..const import CHARACTER_ABBREVS, CSV_COLUMNS, DEFAULT_DOWNLOAD_PATH, PathArgtype
 from ..object import GkmasAssetBundle, GkmasResource
@@ -425,7 +425,12 @@ class GkmasManifest:
             obj_kw = [(obj, {**kw, **kwargs}) for (obj, kw) in obj_kw]
 
         tasks = []
-        progress = Progress()
+        progress = Progress(
+            TextColumn("{task.description}"),
+            BarColumn(),
+            TextColumn("{task.completed}/{task.total}"),
+            TimeElapsedColumn(),
+        )
         progress.start()
 
         for obj, kw in obj_kw:

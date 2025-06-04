@@ -7,7 +7,7 @@ from typing import Callable, Union
 
 from cryptography.hazmat.primitives import hashes
 from rich.console import Console
-from rich.progress import Progress
+from rich.progress import BarColumn, Progress, TextColumn, TimeElapsedColumn
 
 
 def sha256sum(data: bytes) -> bytes:
@@ -76,10 +76,12 @@ class ProgressReporter:
 
     Args:
         title (str): "Master" description for the task, usually a filename.
+        total (int): Number of units to process, usually the file size in bytes.
     """
 
-    def __init__(self, title: str):
+    def __init__(self, title: str, total: int = 0):
         self.title = title
+        self.total = total
 
     def register(
         self,
@@ -101,7 +103,12 @@ class ProgressReporter:
             assert (
                 task_id is None
             ), "task_id should only be provided with a Progress instance"
-            self.progress = Progress()
+            self.progress = Progress(
+                TextColumn("{task.description}"),
+                BarColumn(),
+                TextColumn("{task.completed}/{task.total}"),
+                TimeElapsedColumn(),
+            )
             self.task_id = self.progress.add_task(self.title)
             self.is_standalone = True
         else:
@@ -121,14 +128,13 @@ class ProgressReporter:
         self.progress.update(
             self.task_id,
             description=f"{self.title} - [cyan]Starting[/cyan]",
-            completed=False,
+            total=self.total,
         )
 
     def update(
         self,
         stage: str,
-        advance: int = 1,
-        total: int = 1,  # shows 100% by default
+        advance: Union[int, None] = None,
     ):
         """
         Updates the progress bar by the specified number of units.
@@ -137,14 +143,12 @@ class ProgressReporter:
             stage (str): Description of the current stage
                 (download, deobfuscate, convert, etc.)
             advance (int): Usually the number of bytes in a chunk.
-            total (int): Usually the total file size in bytes.
         """
 
         self.progress.update(
             self.task_id,
             description=f"{self.title} - [cyan]{stage}[/cyan]",
             advance=advance,
-            total=total,
         )
 
     def stop(self, message: str = "Completed"):
