@@ -3,6 +3,7 @@ utils.py
 General-purpose utilities: hashing, rich console logger.
 """
 
+from queue import Queue
 from typing import Callable, Optional
 
 from cryptography.hazmat.primitives import hashes
@@ -79,12 +80,14 @@ class ProgressReporter:
         total (int): Number of units to process, usually the file size in bytes.
         progress (Optional[Progress]): Rich Progress instance for console output.
         task_id (Optional[int]): Task ID for GUI progress updates.
+        upstream (Optional[Queue]): Provides callback to propagate updates to GUI.
     """
 
     title: str
     total: int
     progress: Optional[Progress] = None
     task_id: Optional[int] = None
+    upstream: Optional[Queue[dict]] = None
     is_standalone: bool = False
 
     status2color = {
@@ -94,9 +97,15 @@ class ProgressReporter:
         "error": "bold red",
     }
 
-    def __init__(self, title: str, total: int = 0):
+    def __init__(
+        self,
+        title: str,
+        total: int = 0,
+        upstream: Optional[Queue[dict]] = None,
+    ):
         self.title = title
         self.total = total
+        self.upstream = upstream
 
     def register(
         self,
@@ -143,6 +152,9 @@ class ProgressReporter:
         advance: Optional[int] = None,
         total: Optional[int] = None,
     ):
+
+        # unconditional task update; serves as a hidden counter
+        # if self.upstream is set and visible=False
         self.progress.update(
             self.task_id,
             description=self._rich_descr(stage, color=self.status2color["update"]),
@@ -150,7 +162,22 @@ class ProgressReporter:
             total=total,
         )
 
+        if self.upstream:
+            self.upstream.put(
+                {
+                    "event": "update",
+                    "stage": stage,
+                    "completed": self.progress.tasks[self.task_id].completed,
+                    "total": total if total is not None else self.total,
+                }
+            )
+
     def _emit_message(self, status: str, message: str):
+
+        if self.upstream:
+            self.upstream.put({"event": status, "message": message})
+            return
+
         self.progress.print(
             self._rich_descr(message, color=self.status2color.get(status, "white"))
         )
@@ -163,7 +190,8 @@ class ProgressReporter:
 
         if self.is_standalone:
             self.progress.start()
-        else:
+        elif not self.upstream:  # no console display in GUI mode
+            # might be redundant since GUI never runs non-standalone Reporters
             self.progress.update(self.task_id, visible=True)
 
         self._emit_progress("Starting", total=self.total)
