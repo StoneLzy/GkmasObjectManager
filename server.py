@@ -4,11 +4,13 @@ Flask web server entry point.
 """
 
 from datetime import datetime, timedelta, timezone
+from typing import Union
 
 from flask import Flask, Response, jsonify, render_template, request
 
 import GkmasObjectManager as gom
 from GkmasObjectManager.manifest import GkmasManifest
+from GkmasObjectManager.object import GkmasAssetBundle, GkmasResource
 
 app = Flask(__name__)
 m = None
@@ -19,6 +21,18 @@ def _get_manifest() -> GkmasManifest:
     if m is None:
         m = gom.fetch()
     return m
+
+
+def _get_object(
+    type: str, id: Union[int, str]
+) -> Union[GkmasAssetBundle, GkmasResource]:
+    m = _get_manifest()
+    if type == "assetbundle":
+        return m.assetbundles[int(id)]
+    elif type == "resource":
+        return m.resources[int(id)]
+    else:
+        raise ValueError(f"Unknown type: {type}")
 
 
 def _sanitize_mtime(mtime: float) -> str:
@@ -57,8 +71,8 @@ def api_search() -> Response:
 def api_bytestream(type: str, id: str) -> Response:
 
     try:
-        obj = getattr(_get_manifest(), f"{type.lower()}s")[int(id)]
-    except (AttributeError, KeyError):
+        obj = _get_object(type, id)
+    except (ValueError, KeyError):
         return jsonify({"error": "Object not found"})
 
     data = obj.get_data()
@@ -100,8 +114,8 @@ def view(type: str, id: str) -> str:
         return render_template("404.html")
 
     try:
-        obj = getattr(_get_manifest(), f"{type.lower()}s")[int(id)]
-    except (AttributeError, KeyError):
+        obj = _get_object(type, id)
+    except (ValueError, KeyError):
         return render_template("404.html")
 
     info = obj._get_canon_repr()
@@ -110,7 +124,7 @@ def view(type: str, id: str) -> str:
         info["dependencies"] = [
             {
                 "id": dep,
-                "name": getattr(_get_manifest(), f"{type.lower()}s")[int(dep)].name,
+                "name": _get_object(type, dep).name,  # error handling?
             }
             for dep in info["dependencies"]
         ]
