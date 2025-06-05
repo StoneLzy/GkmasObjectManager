@@ -66,7 +66,7 @@ class Logger(Console):
 
     def error(self, message: str):
         self.print(f"[bold red][Error][/bold red] {message}")
-        raise
+        raise RuntimeError(message)
 
 
 class ProgressReporter:
@@ -88,9 +88,10 @@ class ProgressReporter:
     is_standalone: bool = False
 
     status2color = {
-        "running": "cyan",
+        "update": "bold cyan",
         "success": "bold green",
         "warning": "bold yellow",
+        "error": "bold red",
     }
 
     def __init__(self, title: str, total: int = 0):
@@ -144,13 +145,15 @@ class ProgressReporter:
     ):
         self.progress.update(
             self.task_id,
-            description=self._rich_descr(stage, color=self.status2color["running"]),
+            description=self._rich_descr(stage, color=self.status2color["update"]),
             advance=advance,
             total=total,
         )
 
     def _emit_message(self, status: str, message: str):
-        self.progress.print(self._rich_descr(message, color=self.status2color[status]))
+        self.progress.print(
+            self._rich_descr(message, color=self.status2color.get(status, "white"))
+        )
 
     def start(self):
         """Starts the progress bar with the initial title."""
@@ -208,3 +211,14 @@ class ProgressReporter:
             message (str): A warning message to print.
         """
         self._emit_message("warning", message)
+
+    def error(self, message: str):
+        """
+        Logs an error message to the console and raises an error.
+        Used in media/ where logger.error() would get overwritten by progress bars.
+
+        Args:
+            message (str): An error message to print.
+        """
+        self._emit_message("error", message)
+        raise RuntimeError(message)

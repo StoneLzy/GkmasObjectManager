@@ -221,13 +221,15 @@ class GkmasResource:
         # We're being strict here by aborting the download process
         # if any of the sanity checks fail, in order to avoid corrupted output.
         # The client can always retry; just ignore the "file already exists" warnings.
-        # Note: Returning empty bytes is unnecessary, since logger.error() raises an exception.
+        # Note: Returning empty bytes is unnecessary, since _reporter.error() raises an exception.
 
-        if len(content) != self.size:
-            logger.error(f"{self._idname} has invalid size")
+        _size = len(content)
+        if _size != self.size:
+            self._reporter.error(f"Invalid size: expected {self.size}, got {_size}")
 
-        if md5sum(content) != bytes.fromhex(self.md5):
-            logger.error(f"{self._idname} has invalid MD5 hash")
+        _md5 = md5sum(content).hex()
+        if _md5 != self.md5:
+            self._reporter.error(f"Invalid MD5 hash: expected {self.md5}, got {_md5}")
 
         return {
             "bytes": content,
