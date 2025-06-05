@@ -87,6 +87,12 @@ class ProgressReporter:
     task_id: Optional[int] = None
     is_standalone: bool = False
 
+    status2color = {
+        "running": "cyan",
+        "success": "bold green",
+        "warning": "bold yellow",
+    }
+
     def __init__(self, title: str, total: int = 0):
         self.title = title
         self.total = total
@@ -127,13 +133,24 @@ class ProgressReporter:
             self.task_id = task_id
             self.is_standalone = False
 
-    def _rich_descr(
+    def _rich_descr(self, stage: str, color: str) -> str:
+        return f"[white]{self.title}[/] - [{color}]{stage}[/]"
+
+    def _emit_progress(
         self,
         stage: str,
-        stage_color: str = "cyan",
-        title_color: str = "white",
-    ) -> str:
-        return f"[{title_color}]{self.title}[/] - [{stage_color}]{stage}[/]"
+        advance: Optional[int] = None,
+        total: Optional[int] = None,
+    ):
+        self.progress.update(
+            self.task_id,
+            description=self._rich_descr(stage, color=self.status2color["running"]),
+            advance=advance,
+            total=total,
+        )
+
+    def _emit_message(self, status: str, message: str):
+        self.progress.print(self._rich_descr(message, color=self.status2color[status]))
 
     def start(self):
         """Starts the progress bar with the initial title."""
@@ -145,11 +162,8 @@ class ProgressReporter:
             self.progress.start()
         else:
             self.progress.update(self.task_id, visible=True)
-        self.progress.update(
-            self.task_id,
-            description=self._rich_descr("Starting"),
-            total=self.total,
-        )
+
+        self._emit_progress("Starting", total=self.total)
 
     def update(self, stage: str, advance: Optional[int] = None):
         """
@@ -164,14 +178,16 @@ class ProgressReporter:
         if not self.progress:
             return
 
-        self.progress.update(
-            self.task_id,
-            description=self._rich_descr(stage),
-            advance=advance,
-        )
+        self._emit_progress(stage, advance=advance)
 
     def success(self, message: str = "Completed"):
-        """Stops the progress bar and prints it to the console."""
+        """
+        Stops the progress bar and prints a success message to the console.
+
+        Args:
+            message (str): A success message to print.
+                Defaults to "Completed".
+        """
 
         if not self.progress:
             return
@@ -180,11 +196,15 @@ class ProgressReporter:
             self.progress.stop()
         else:
             self.progress.remove_task(self.task_id)
-        self.progress.print(self._rich_descr(message, stage_color="bold green"))
+
+        self._emit_message("success", message)
 
     def warning(self, message: str):
         """
         Logs a warning message to the console.
         Used in media/ where logger.warning() would get overwritten by progress bars.
+
+        Args:
+            message (str): A warning message to print.
         """
-        self.progress.print(self._rich_descr(message, stage_color="bold yellow"))
+        self._emit_message("warning", message)
