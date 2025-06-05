@@ -53,20 +53,14 @@ def api_search() -> Response:
     )
 
 
-@app.route("/api/assetbundle/<id>/bytestream")
-def api_assetbundle_bytestream(id: str) -> Response:
-    obj = _get_manifest().assetbundles[int(id)]
-    data = obj.get_data()
-    return Response(
-        data["bytes"],
-        mimetype=data["mimetype"],
-        headers={"Last-Modified": _sanitize_mtime(data["mtime"])},
-    )
+@app.route("/api/<type>/<id>/bytestream")
+def api_bytestream(type: str, id: str) -> Response:
 
+    try:
+        obj = getattr(_get_manifest(), f"{type.lower()}s")[int(id)]
+    except (AttributeError, KeyError):
+        return jsonify({"error": "Object not found"})
 
-@app.route("/api/resource/<id>/bytestream")
-def api_resource_bytestream(id: str) -> Response:
-    obj = _get_manifest().resources[int(id)]
     data = obj.get_data()
     return Response(
         data["bytes"],
@@ -95,13 +89,20 @@ def search() -> str:
     )
 
 
-@app.route("/view/assetbundle/<id>")
-def view_assetbundle(id: str) -> str:
+@app.route("/view/<type>/<id>")
+def view(type: str, id: str) -> str:
+
+    if type == "assetbundle":
+        type_display = "AssetBundle"
+    elif type == "resource":
+        type_display = "Resource"
+    else:
+        return render_template("404.html")
 
     try:
-        obj = _get_manifest().assetbundles[int(id)]
-    except KeyError:
-        return render_template("404.html"), 404
+        obj = getattr(_get_manifest(), f"{type.lower()}s")[int(id)]
+    except (AttributeError, KeyError):
+        return render_template("404.html")
 
     info = obj._get_canon_repr()
     info["raw_url"] = obj._url
@@ -109,24 +110,12 @@ def view_assetbundle(id: str) -> str:
         info["dependencies"] = [
             {
                 "id": dep,
-                "name": _get_manifest().assetbundles[int(dep)].name,
+                "name": getattr(_get_manifest(), f"{type.lower()}s")[int(dep)].name,
             }
             for dep in info["dependencies"]
         ]
-    return render_template("view.html", info=info, type="AssetBundle")
 
-
-@app.route("/view/resource/<id>")
-def view_resource(id: str) -> str:
-
-    try:
-        obj = _get_manifest().resources[int(id)]
-    except KeyError:
-        return render_template("404.html"), 404
-
-    info = obj._get_canon_repr()
-    info["raw_url"] = obj._url
-    return render_template("view.html", info=info, type="Resource")
+    return render_template("view.html", info=info, type=type_display)
 
 
 @app.errorhandler(404)
