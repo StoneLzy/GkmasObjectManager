@@ -6,6 +6,7 @@ General-purpose resource downloading.
 import re
 from email.utils import parsedate_to_datetime
 from pathlib import Path
+from queue import Queue
 from typing import Optional
 
 import requests
@@ -84,11 +85,35 @@ class GkmasResource:
         # this format retains the order of fields
         return {field: getattr(self, field) for field in self._fields}
 
-    def _get_media(self) -> GkmasDummyMedia:
+    def _register_reporter(
+        self,
+        progress: Optional[Progress] = None,
+        task_id: Optional[int] = None,
+        upstream: Optional[Queue[dict]] = None,
+        **kwargs,  # wildcard
+    ):
+        """
+        [INTERNAL] Registers reporter for internal progress tracking.
+
+        Args:
+            progress (Progress, optional): A Progress instance to register the progress reporter.
+                If None, a disposable Progress instance is created.
+            task_id (int, optional): Task ID to register the progress reporter.
+                Must be None if progress is None, and vice versa.
+            upstream (Queue[dict], optional): A queue to register the progress reporter.
+                If provided, suppresses console output.
+        """
+
+        self._reporter.register(progress, task_id, upstream)
+
+    def _get_media(self, **kwargs) -> GkmasDummyMedia:
         """
         [INTERNAL] Instantiates a high-level media class based on the resource name.
         Used to dispatch download and extraction.
+        SIDE EFFECT: Also registers progress reporter.
         """
+
+        self._register_reporter(**kwargs)
 
         if self._media is None:
             if self.name.startswith("img_"):
@@ -125,14 +150,12 @@ class GkmasResource:
         Returns:
             dict: A dictionary of keys "bytes", "mimetype", and "mtime".
         """
-        return self._get_media().get_data(**kwargs)
+        return self._get_media(**kwargs).get_data(**kwargs)
 
     def download(
         self,
         path: PathArgtype = DEFAULT_DOWNLOAD_PATH,
         categorize: bool = True,
-        progress: Optional[Progress] = None,
-        task_id: Optional[int] = None,
         **kwargs,
     ):
         """
@@ -143,15 +166,10 @@ class GkmasResource:
                 If a directory, subdirectories are auto-determined based on the resource name.
             categorize (bool) = True: Whether to put the downloaded object into subdirectories.
                 If False, the object is directly downloaded to the specified 'path'.
-            progress (Progress, optional): A Progress instance to register the progress reporter.
-                If None, a disposable Progress instance is created.
-            task_id (int, optional): Task ID to register the progress reporter.
-                Must be None if progress is None, and vice versa.
         """
 
-        self._reporter.register(progress, task_id)
         path = self._download_path(path, categorize)
-        self._get_media().export(path, **kwargs)
+        self._get_media(**kwargs).export(path, **kwargs)
 
     def _download_path(self, path: PathArgtype, categorize: bool) -> Path:
         """

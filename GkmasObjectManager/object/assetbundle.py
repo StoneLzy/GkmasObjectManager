@@ -58,11 +58,14 @@ class GkmasAssetBundle(GkmasResource):
         canon["name"] = canon["name"].replace(".unity3d", "")
         return canon
 
-    def _get_media(self) -> GkmasDummyMedia:
+    def _get_media(self, **kwargs) -> GkmasDummyMedia:
         """
         [INTERNAL] Instantiates a high-level media class based on the assetbundle name.
         Used to dispatch download and extraction.
+        SIDE EFFECT: Also registers progress reporter.
         """
+
+        self._register_reporter(**kwargs)
 
         if self._media is None:
             if self.name.startswith("img_"):
