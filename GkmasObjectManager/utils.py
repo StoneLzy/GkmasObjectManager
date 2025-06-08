@@ -97,20 +97,18 @@ class ProgressReporter:
         "error": "bold red",
     }
 
-    def __init__(
-        self,
-        title: str,
-        total: int = 0,
-        upstream: Optional[Queue[dict]] = None,
-    ):
+    def __init__(self, total: int, title: str = "Progress"):
+        # 'title' can be omitted in GUI mode, but 'total' is mandatory
+        assert title, "Title cannot be an empty string"
+        assert total > 0, "Total must be positive"
         self.title = title
         self.total = total
-        self.upstream = upstream
 
     def register(
         self,
         progress: Optional[Progress] = None,
         task_id: Optional[int] = None,
+        upstream: Optional[Queue[dict]] = None,
     ):
         """
         Registers the progress reporter with a Progress instance or task ID.
@@ -122,7 +120,10 @@ class ProgressReporter:
                 If None, a disposable Progress instance is created.
             task_id (int, optional): Task ID for GUI progress updates.
                 Again, should only be provided by GkmasManifest.download().
+            upstream (Queue[dict], optional): Provides callback to propagate updates
+                to GUI. Suppresses console output if set.
         """
+        self.upstream = upstream
         if not progress:
             assert (
                 task_id is None
@@ -238,6 +239,10 @@ class ProgressReporter:
         Args:
             message (str): A warning message to print.
         """
+
+        if not self.progress:
+            return
+
         self._emit_message("warning", message)
 
     def error(self, message: str):
@@ -248,5 +253,9 @@ class ProgressReporter:
         Args:
             message (str): An error message to print.
         """
+
+        if not self.progress:
+            return
+
         self._emit_message("error", message)
         raise RuntimeError(message)

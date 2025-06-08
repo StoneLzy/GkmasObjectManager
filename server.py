@@ -3,8 +3,10 @@ server.py
 Flask web server entry point.
 """
 
+import json
 from datetime import datetime, timedelta, timezone
-from typing import Union
+from queue import Queue
+from typing import Optional, Union
 
 from flask import Flask, Response, jsonify, render_template, request
 
@@ -12,7 +14,10 @@ import GkmasObjectManager as gom
 from GkmasObjectManager.manifest import GkmasManifest
 from GkmasObjectManager.object import GkmasAssetBundle, GkmasResource
 
+# bookkeeping & helpers
+
 app = Flask(__name__)
+queues = {}
 m = None
 
 
@@ -75,11 +80,63 @@ def api_bytestream(type: str, id: str) -> Response:
     except (ValueError, KeyError):
         return jsonify({"error": "Object not found"})
 
-    data = obj.get_data()
+    try:
+        q = queues[(type, id)]
+    except KeyError:
+        q = Queue()
+        queues[(type, id)] = q
+
+    data = obj.get_data(upstream=q)
     return Response(
         data["bytes"],
         mimetype=data["mimetype"],
         headers={"Last-Modified": _sanitize_mtime(data["mtime"])},
+    )
+
+
+# SSE endpoints
+
+
+def _poll_and_format(type: str, id: str) -> str:
+
+    event: str = "update"
+    data: dict = {}
+    q: Optional[Queue[dict]] = None
+
+    try:
+        q = queues[(type, id)]
+    except KeyError:
+        event = "error"
+        data = {"error": "Progress stream not found"}
+
+    if q.empty():
+        event = "error"
+        data = {"error": "Progress stream is empty"}
+    else:
+        progress: dict = q.get(timeout=1)
+        event = progress.pop("event", event)
+        data = progress.copy()
+
+    return f"event: {event}\ndata: {json.dumps(data)}\n\n"
+
+
+@app.route("/sse/<type>/<id>/progress")
+def sse_progress(type: str, id: str) -> Response:
+
+    def generate():
+        if (type, id) not in queues:
+            return
+
+        while True:
+            yield _poll_and_format(type, id)
+
+    return Response(
+        generate(),
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        },
     )
 
 
