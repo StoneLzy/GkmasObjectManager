@@ -18,7 +18,7 @@ class GkmasDummyMedia:
     Unrecognized media handler, also the fallback for conversion plugins.
 
     Attributes:
-        name (str): Name of the media file (for logging purposes).
+        ext (str): File extension of the media file.
         downloader (Callable): Function to lazily download raw bytes.
         reporter (ProgressReporter): Reporter for download progress.
         mtime (float): Last modified time of the media file as a timestamp.
@@ -38,8 +38,7 @@ class GkmasDummyMedia:
 
     ENABLE_CACHE: bool = True
 
-    name: str
-    _name_ext: str
+    ext: str
     mtime: float = 0.0
     downloader: Callable[[], dict]
     reporter: ProgressReporter
@@ -67,12 +66,11 @@ class GkmasDummyMedia:
 
     def __init__(
         self,
-        name: str,
+        ext: str,
         downloader: Callable[[], dict],
         reporter: ProgressReporter,
     ):
-        self.name = name  # only for logging
-        self._name_ext = name.split(".")[-1][:-1].lower()
+        self.ext = ext.lower()
         self.downloader = downloader  # lazy downloader
         self.reporter = reporter
         self._init_mimetype()
@@ -154,7 +152,7 @@ class GkmasDummyMedia:
         # Key differences:
         # - collapse 'fmt if fmt else DEFAULT' to 'fmt or DEFAULT'
         # - merge !self.mimetype common fallbacks, escalate it above fmt check
-        # - instead of 'octet-stream', fallback to self._name_ext
+        # - instead of 'octet-stream', fallback to self.ext
         # - .zip is *fundamentally* uncatchable and ignored, since we wouldn't know
         #   a certain .acb is a multi-subsong archive before downloading the raw bytes
 
@@ -162,7 +160,7 @@ class GkmasDummyMedia:
             f"{self.mimetype}_format",
             self.raw_format or self.default_converted_format,
         ).lower()
-        return fmt if (fmt and self.mimetype) else self._name_ext
+        return fmt if (fmt and self.mimetype) else self.ext
 
     def _get_raw(self) -> bytes:
         if self.raw is not None:
@@ -226,13 +224,11 @@ class GkmasDummyMedia:
         _mimesubtype = self._get_predicted_mimesubtype(**kwargs)
         _path = path.with_suffix(f".{_mimesubtype}")
         if _path.exists():
-            # self.name is heavily reused in children, and we don't want to
-            # change Media's init interface just for reassembly here
             self.reporter.warning(f"*.{_mimesubtype} already exists, aborting")
             return
 
         # additional check for existing .zip; yet the unpacked case is still uncovered
-        if self._name_ext == "acb" and path.with_suffix(".zip").exists():
+        if self.ext == "acb" and path.with_suffix(".zip").exists():
             self.reporter.warning("*.zip already exists, aborting")
             return
 

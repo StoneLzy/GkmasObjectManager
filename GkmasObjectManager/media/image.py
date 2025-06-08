@@ -18,7 +18,7 @@ class GkmasImage(GkmasDummyMedia):
 
     def _init_mimetype(self):
         self.mimetype = "image"
-        self.raw_format = self._name_ext
+        self.raw_format = self.ext
 
     def _convert(self, raw: bytes) -> bytes:
         return self._img2bytes(Image.open(BytesIO(raw)))
@@ -108,5 +108,6 @@ class GkmasUnityImage(GkmasImage):
     def _convert(self, raw: bytes) -> bytes:
         env = UnityPy.load(raw)
         values = list(env.container.values())
-        assert len(values) == 1, f"{self.name} contains {len(values)} images."
+        if len(values) != 1:
+            self.reporter.error(f"Contains {len(values)} images, expected 1.")
         return super()._img2bytes(values[0].read().image)

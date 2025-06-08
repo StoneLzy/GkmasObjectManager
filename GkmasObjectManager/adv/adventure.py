@@ -6,10 +6,8 @@ Adventure (story script) plugin for GkmasResource.
 import json
 
 from ..media import GkmasDummyMedia
-from ..utils import Logger
 from .parser import GkadvCommandParser
 
-logger = Logger()
 parser = GkadvCommandParser()
 
 

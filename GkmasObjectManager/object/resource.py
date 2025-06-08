@@ -18,9 +18,7 @@ from ..media import GkmasDummyMedia
 from ..media.audio import GkmasACBAudio, GkmasAudio, GkmasAWBAudio
 from ..media.image import GkmasImage
 from ..media.video import GkmasUSMVideo
-from ..utils import Logger, ProgressReporter, md5sum
-
-logger = Logger()
+from ..utils import ProgressReporter, md5sum
 
 
 class GkmasResource:
@@ -131,7 +129,7 @@ class GkmasResource:
             else:
                 media_class = GkmasDummyMedia
             self._media = media_class(
-                self._idname,
+                self.name.split(".")[-1],  # use extension as raw format
                 self._download_bytes,
                 self._reporter,
             )

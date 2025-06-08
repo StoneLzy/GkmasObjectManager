@@ -7,11 +7,9 @@ from ..const import UNITY_SIGNATURE
 from ..media import GkmasDummyMedia
 from ..media.audio import GkmasUnityAudio
 from ..media.image import GkmasUnityImage
-from ..utils import Logger, ProgressReporter
+from ..utils import ProgressReporter
 from .deobfuscate import GkmasAssetBundleDeobfuscator
 from .resource import GkmasResource
-
-logger = Logger()
 
 
 class GkmasAssetBundle(GkmasResource):
@@ -75,7 +73,7 @@ class GkmasAssetBundle(GkmasResource):
             else:
                 media_class = GkmasDummyMedia
             self._media = media_class(
-                self._idname,
+                self.name.split(".")[-1],
                 self._download_bytes,
                 self._reporter,
             )

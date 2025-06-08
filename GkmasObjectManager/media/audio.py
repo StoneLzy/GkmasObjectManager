@@ -23,7 +23,7 @@ class GkmasAudio(GkmasDummyMedia):
 
     def _init_mimetype(self):
         self.mimetype = "audio"
-        self.raw_format = self._name_ext
+        self.raw_format = self.ext
 
     def _convert(self, raw: bytes) -> bytes:
         audio = AudioSegment.from_file(BytesIO(raw))
@@ -40,7 +40,8 @@ class GkmasUnityAudio(GkmasAudio):
     def _convert(self, raw: bytes) -> bytes:
         env = UnityPy.load(raw)
         values = list(env.container.values())
-        assert len(values) == 1, f"{self.name} contains {len(values)} audio clips."
+        if len(values) != 1:
+            self.reporter.error(f"Contains {len(values)} audio clips, expected 1.")
         samples = values[0].read().samples
         sample = list(samples.values())[0]
         return sample if self.converted_format == "wav" else super()._convert(sample)
@@ -69,11 +70,10 @@ class GkmasAWBAudio(GkmasDummyMedia):
         audio = None
         success = False
         exception = None
-        input_ext = self._name_ext
 
         # vgmstream doesn't like delete=True
         with tempfile.NamedTemporaryFile(
-            suffix=f".{input_ext}", delete=False
+            suffix=f".{self.ext}", delete=False
         ) as tmp_in, tempfile.TemporaryDirectory() as tmp_out:
 
             tmp_in.write(raw)
