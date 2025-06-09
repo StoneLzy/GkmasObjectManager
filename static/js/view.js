@@ -1,10 +1,42 @@
 function displayMedia() {
-    subscribeToProgress(type, info.id, (status, data) => {
-        console.log("Progress update:", status, data);
+    let sse_src = subscribeToProgress(type, info.id, (status, data) => {
+        switch (status) {
+            case "open":
+                $("#viewProgress").show();
+                $("#viewMediaContent").hide();
+                break;
+            case "update":
+                $("#viewProgState").text(data.state);
+                $("#viewProgNum").text(data.completed + " / " + data.total);
+                $("#viewProgBar").css(
+                    "width",
+                    (data.completed / data.total) * 100 + "%"
+                );
+                break;
+            case "success":
+                $("#viewProgState").text(data.message);
+                $("#viewProgBar").css("width", "100%");
+                sse_src.close();
+                break;
+            case "warning":
+                $("#viewProgState").text("WARNING: " + data.message);
+                console.warn("Warning: " + data.message);
+                break;
+            case "error":
+                $("#viewProgState").text("ERROR: " + data.message);
+                $("#viewProgBar").hide();
+                console.error(
+                    "Error: " + data.message + "\n" + data.description
+                );
+                sse_src.close();
+                break;
+        }
     });
+
     getMediaBlobURL(type, info.id).then(({ url, mimetype, mtime }) => {
+        sse_src.close();
         $("#uploadTime").text(mtime);
-        $("#loadingSpinnerMedia").hide();
+        $("#viewProgress").hide();
         $("#viewMediaContent").show();
         let container = $("#viewMediaContent");
 

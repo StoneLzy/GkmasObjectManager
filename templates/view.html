@@ -24,12 +24,12 @@
             <div class="row">
                 <div class="col-md-12">
                     <div id="viewMedia" class="container align-center">
-                        <div id="loadingSpinnerMedia">
-                            <div
-                                class="spinner-border me-2"
-                                role="status"
-                            ></div>
-                            Loading media...
+                        <div id="viewProgress">
+                            <div class="d-flex justify-content-between">
+                                <span id="viewProgState">Downloading...</span>
+                                <span id="viewProgNum"></span>
+                            </div>
+                            <div id="viewProgBar"></div>
                         </div>
                         <div
                             id="viewMediaContent"

@@ -74,11 +74,10 @@ function subscribeToProgress(type, id, onUpdate) {
 
     src.onerror = function (event) {
         onUpdate("error", {
-            type: type,
-            id: id,
             message: "Error while subscribing to progress stream",
             description: event.data || "Unknown error",
         });
+        dumpErrorToConsole(event);
         src.close();
     };
 
@@ -101,6 +100,7 @@ function subscribeToProgress(type, id, onUpdate) {
     src.addEventListener("error", function (event) {
         const data = JSON.parse(event.data);
         onUpdate("error", data);
+        dumpErrorToConsole(event);
         src.close();
     });
 

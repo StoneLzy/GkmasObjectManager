@@ -87,6 +87,8 @@ def api_bytestream(type: str, id: str) -> Response:
         queues[(type, id)] = q
 
     data = obj.get_data(upstream=q)
+    obj._reporter.success("Data ready at frontend")
+
     return Response(
         data["bytes"],
         mimetype=data["mimetype"],
@@ -110,7 +112,10 @@ def _poll_and_format(type: str, id: str) -> str:
         data = {"message": "Progress stream not found"}
 
     else:
-        progress: dict = q.get(timeout=1)
+        try:
+            progress: dict = q.get(timeout=1)
+        except Exception:
+            return ":keep-alive\n\n"  # no new data, keep connection alive
         if not progress:
             event = "error"
             data = {"message": "Progress stream is empty"}
