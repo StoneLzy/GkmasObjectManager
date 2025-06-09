@@ -24,7 +24,7 @@ function displayMedia() {
                 break;
             case "error":
                 $("#viewProgState").text("ERROR: " + data.message);
-                $("#viewProgBar").hide();
+                $("#viewProgBarContainer").hide();
                 console.error(
                     "Error: " + data.message + "\n" + data.description
                 );
