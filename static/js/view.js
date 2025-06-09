@@ -1,30 +1,32 @@
 function displayMedia() {
     let sse_src = subscribeToProgress(type, info.id, (status, data) => {
+        container = $("#viewProgress");
         switch (status) {
             case "open":
-                $("#viewProgress").show();
+                container.show();
                 $("#viewMediaContent").hide();
                 break;
             case "update":
-                $("#viewProgState").text(data.stage + "...");
-                $("#viewProgNum").text(data.completed + " / " + data.total);
-                $("#viewProgBar").css(
-                    "width",
-                    (data.completed / data.total) * 100 + "%"
-                );
+                container.find(".prog-stage").text(data.stage + "...");
+                container
+                    .find(".prog-num")
+                    .text(data.completed + " / " + data.total);
+                container
+                    .find(".prog-bar")
+                    .css("width", (data.completed / data.total) * 100 + "%");
                 break;
             case "success":
-                $("#viewProgState").text(data.message);
-                $("#viewProgBar").css("width", "100%");
+                container.find(".prog-stage").text(data.message);
+                container.find(".prog-bar").css("width", "100%");
                 sse_src.close();
                 break;
             case "warning":
-                $("#viewProgState").text("WARNING: " + data.message);
+                container.find(".prog-stage").text("WARNING: " + data.message);
                 console.warn("Warning: " + data.message);
                 break;
             case "error":
-                $("#viewProgState").text("ERROR: " + data.message);
-                $("#viewProgBarContainer").hide();
+                container.find(".prog-stage").text("ERROR: " + data.message);
+                container.find(".prog-bar-container").hide();
                 console.error(
                     "Error: " + data.message + "\n" + data.description
                 );

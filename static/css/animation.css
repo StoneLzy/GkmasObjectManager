@@ -7,17 +7,17 @@
     height: 90vh;
 }
 
-#viewProgress {
+.prog-container {
     width: 75%;
 }
 
-#viewProgBarContainer {
+.prog-bar-container {
     width: 100%;
     height: 1rem;
     background-color: lightgray;
 }
 
-#viewProgBar {
+.prog-bar {
     width: 0%;
     height: 1rem;
     background-color: black;
