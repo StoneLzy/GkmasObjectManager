@@ -6,7 +6,7 @@ function displayMedia() {
                 $("#viewMediaContent").hide();
                 break;
             case "update":
-                $("#viewProgState").text(data.state);
+                $("#viewProgState").text(data.stage + "...");
                 $("#viewProgNum").text(data.completed + " / " + data.total);
                 $("#viewProgBar").css(
                     "width",

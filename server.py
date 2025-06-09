@@ -4,6 +4,7 @@ Flask web server entry point.
 """
 
 import json
+from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from queue import Queue
 from typing import Optional, Union
@@ -17,7 +18,7 @@ from GkmasObjectManager.object import GkmasAssetBundle, GkmasResource
 # bookkeeping & helpers
 
 app = Flask(__name__)
-queues = {}
+queues = defaultdict(Queue)
 m = None
 
 
@@ -80,12 +81,7 @@ def api_bytestream(type: str, id: str) -> Response:
     except (ValueError, KeyError):
         return jsonify({"error": "Object not found"})
 
-    try:
-        q = queues[(type, id)]
-    except KeyError:
-        q = Queue()
-        queues[(type, id)] = q
-
+    q = queues[(type, id)]
     data = obj.get_data(upstream=q)
     obj._reporter.success("Data ready at frontend")
 
@@ -105,23 +101,18 @@ def _poll_and_format(type: str, id: str) -> str:
     data: dict = {}
     q: Optional[Queue[dict]] = None
 
-    try:
-        q = queues[(type, id)]
-    except KeyError:
-        event = "error"
-        data = {"message": "Progress stream not found"}
+    q = queues[(type, id)]
 
+    try:
+        progress: dict = q.get(timeout=1)
+    except Exception:
+        return ":keep-alive\n\n"  # no new data, keep connection alive
+    if not progress:
+        event = "error"
+        data = {"message": "Progress stream is empty"}
     else:
-        try:
-            progress: dict = q.get(timeout=1)
-        except Exception:
-            return ":keep-alive\n\n"  # no new data, keep connection alive
-        if not progress:
-            event = "error"
-            data = {"message": "Progress stream is empty"}
-        else:
-            event = progress.pop("event", event)
-            data = progress.copy()
+        event = progress.pop("event", event)
+        data = progress.copy()
 
     ret = f"event: {event}\n" if event else ""
     ret += f"data: {json.dumps(data)}\n\n"
@@ -132,9 +123,6 @@ def _poll_and_format(type: str, id: str) -> str:
 def sse_progress(type: str, id: str) -> Response:
 
     def generate():
-        if (type, id) not in queues:
-            return
-
         while True:
             yield _poll_and_format(type, id)
 
