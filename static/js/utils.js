@@ -65,41 +65,55 @@ function dumpErrorToConsole(...args) {
     });
 }
 
-function subscribeToProgress(type, id, onUpdate) {
+function progressDriver(type, id, progressSelector, mediaSelector) {
     const src = new EventSource(`/sse/${type.toLowerCase()}/${id}/progress`);
+    const progress = $(progressSelector);
+    const media = $(mediaSelector);
+    console.log("enter");
 
     src.onopen = function () {
-        onUpdate("open", { type: type, id: id });
+        progress.show();
+        media.hide();
     };
 
     src.onerror = function (event) {
-        onUpdate("error", {
-            message: "Error while subscribing to progress stream",
-            description: event.data || "Unknown error",
-        });
+        progress
+            .find(".prog-stage")
+            .text("ERROR: Cannot subscribe to progress stream");
+        progress.find(".prog-num").text("");
+        progress.find(".prog-bar-container").hide();
         dumpErrorToConsole(event);
         src.close();
     };
 
     src.onmessage = function (event) {
         const data = JSON.parse(event.data);
-        onUpdate("update", data);
+        progress.find(".prog-stage").text(data.stage + "...");
+        progress.find(".prog-num").text(data.completed + " / " + data.total);
+        progress
+            .find(".prog-bar")
+            .css("width", (data.completed / data.total) * 100 + "%");
     };
 
     src.addEventListener("success", function (event) {
         const data = JSON.parse(event.data);
-        onUpdate("success", data);
+        progress.find(".prog-stage").text(data.message);
+        progress.find(".prog-num").text("");
+        progress.find(".prog-bar").css("width", "100%");
         src.close();
     });
 
     src.addEventListener("warning", function (event) {
         const data = JSON.parse(event.data);
-        onUpdate("warning", data);
+        progress.find(".prog-stage").text("WARNING: " + data.message);
+        console.warn(data.message);
     });
 
     src.addEventListener("error", function (event) {
         const data = JSON.parse(event.data);
-        onUpdate("error", data);
+        progress.find(".prog-stage").text("ERROR: " + data.message);
+        progress.find(".prog-num").text("");
+        progress.find(".prog-bar-container").hide();
         dumpErrorToConsole(event);
         src.close();
     });
