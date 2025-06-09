@@ -99,7 +99,7 @@ def api_bytestream(type: str, id: str) -> Response:
 
 def _poll_and_format(type: str, id: str) -> str:
 
-    event: str = "update"
+    event: str = ""
     data: dict = {}
     q: Optional[Queue[dict]] = None
 
@@ -107,17 +107,20 @@ def _poll_and_format(type: str, id: str) -> str:
         q = queues[(type, id)]
     except KeyError:
         event = "error"
-        data = {"error": "Progress stream not found"}
+        data = {"message": "Progress stream not found"}
 
-    if q.empty():
-        event = "error"
-        data = {"error": "Progress stream is empty"}
     else:
         progress: dict = q.get(timeout=1)
-        event = progress.pop("event", event)
-        data = progress.copy()
+        if not progress:
+            event = "error"
+            data = {"message": "Progress stream is empty"}
+        else:
+            event = progress.pop("event", event)
+            data = progress.copy()
 
-    return f"event: {event}\ndata: {json.dumps(data)}\n\n"
+    ret = f"event: {event}\n" if event else ""
+    ret += f"data: {json.dumps(data)}\n\n"
+    return ret
 
 
 @app.route("/sse/<type>/<id>/progress")

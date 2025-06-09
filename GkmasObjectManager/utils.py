@@ -166,7 +166,6 @@ class ProgressReporter:
         if self.upstream:
             self.upstream.put(
                 {
-                    "event": "update",
                     "stage": stage,
                     "completed": self.progress.tasks[self.task_id].completed,
                     "total": total if total is not None else self.total,

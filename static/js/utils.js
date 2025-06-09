@@ -65,12 +65,55 @@ function dumpErrorToConsole(...args) {
     });
 }
 
+function subscribeToProgress(type, id, onUpdate) {
+    const src = new EventSource(`/sse/${type.toLowerCase()}/${id}/progress`);
+
+    src.onopen = function () {
+        onUpdate("open", { type: type, id: id });
+    };
+
+    src.onerror = function (event) {
+        onUpdate("error", {
+            type: type,
+            id: id,
+            message: "Error while subscribing to progress stream",
+            description: event.data || "Unknown error",
+        });
+        src.close();
+    };
+
+    src.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+        onUpdate("update", data);
+    };
+
+    src.addEventListener("success", function (event) {
+        const data = JSON.parse(event.data);
+        onUpdate("success", data);
+        src.close();
+    });
+
+    src.addEventListener("warning", function (event) {
+        const data = JSON.parse(event.data);
+        onUpdate("warning", data);
+    });
+
+    src.addEventListener("error", function (event) {
+        const data = JSON.parse(event.data);
+        onUpdate("error", data);
+        src.close();
+    });
+
+    return src; // for external access
+}
+
 function getMediaBlobURL(type, id) {
     return new Promise((resolve, reject) => {
         $.ajax({
             type: "GET",
             url: `/api/${type.toLowerCase()}/${id}/bytestream`,
             xhrFields: { responseType: "arraybuffer" },
+
             success: function (data, status, request) {
                 const mimetype = request.getResponseHeader("Content-Type");
                 const mtime = request.getResponseHeader("Last-Modified");
@@ -81,6 +124,7 @@ function getMediaBlobURL(type, id) {
                     mtime: mtime.replace(/ GMT.*/, ""),
                 });
             },
+
             error: function (...args) {
                 dumpErrorToConsole(...args);
                 blob = new Blob(["An error occurred while fetching media."], {

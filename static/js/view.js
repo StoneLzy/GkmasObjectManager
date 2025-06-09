@@ -1,4 +1,7 @@
 function displayMedia() {
+    subscribeToProgress(type, info.id, (status, data) => {
+        console.log("Progress update:", status, data);
+    });
     getMediaBlobURL(type, info.id).then(({ url, mimetype, mtime }) => {
         $("#uploadTime").text(mtime);
         $("#loadingSpinnerMedia").hide();
