@@ -65,11 +65,39 @@ function dumpErrorToConsole(...args) {
     });
 }
 
-function progressDriver(type, id, progressSelector, mediaSelector) {
+/*
+    The two drivers below expect a rigid class structure in the container:
+        media-container  (handled by progressedMediaDriver)
+        - prog-container (handled by progressDriver)
+        - - prog-stage
+        - - prog-num
+        - - prog-bar-container
+        - - - prog-bar
+        - media-content
+*/
+
+function progressedMediaDriver(type, id, container, mediaPopulator) {
+    const progress = container.find(".prog-container");
+    const media = container.find(".media-content");
+    let sse_src = progressDriver(type, id, progress, media);
+    getMediaBlobURL(type, id)
+        .then(({ url, mimetype, mtime }) => {
+            sse_src.close();
+            progress.hide();
+            media.show();
+            mediaPopulator(media, url, mimetype, mtime);
+        })
+        .catch((error) => {
+            sse_src.close();
+            progress.hide();
+            media.show();
+            media.text("Failed to load media: " + error.message);
+            dumpErrorToConsole(error);
+        });
+}
+
+function progressDriver(type, id, progress, media) {
     const src = new EventSource(`/sse/${type.toLowerCase()}/${id}/progress`);
-    const progress = $(progressSelector);
-    const media = $(mediaSelector);
-    console.log("enter");
 
     src.onopen = function () {
         progress.show();

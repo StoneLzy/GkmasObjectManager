@@ -18,6 +18,12 @@
     line-height: 1;
 }
 
+.media-container {
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+}
+
 /* Navbar */
 
 #navbarNav {
@@ -63,18 +69,15 @@
 
 /* View */
 
-#viewMedia {
+.media-container-view {
     display: flex;
     flex-direction: column; /* stack children vertically */
-    width: 100%;
-    height: auto;
     aspect-ratio: 16 / 9;
-    overflow: hidden;
     border: 2px dotted lightgray;
 }
 
-#viewMediaContent img,
-#viewMediaContent video {
+.media-content-view img,
+.media-content-view video {
     display: block;
     max-width: 100%;
     max-height: 30rem;
@@ -82,7 +85,7 @@
     object-position: center;
 }
 
-#viewMediaContent audio {
+.media-content-view audio {
     display: block;
     width: 36rem;
     object-fit: contain;
