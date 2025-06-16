@@ -16,7 +16,8 @@ from rich.progress import BarColumn, Progress, TextColumn, TimeElapsedColumn
 
 from ..const import CHARACTER_ABBREVS, CSV_COLUMNS, DEFAULT_DOWNLOAD_PATH, PathArgtype
 from ..object import GkmasAssetBundle, GkmasResource
-from ..utils import Logger, nocache
+from ..rich import Logger
+from ..utils import nocache
 from .listing import GkmasObjectList
 from .octodb_pb2 import dict2pdbytes
 from .revision import GkmasManifestRevision

@@ -18,7 +18,8 @@ from ..media import GkmasDummyMedia
 from ..media.audio import GkmasACBAudio, GkmasAudio, GkmasAWBAudio
 from ..media.image import GkmasImage
 from ..media.video import GkmasUSMVideo
-from ..utils import ProgressReporter, md5sum
+from ..rich import ProgressReporter
+from ..utils import md5sum
 
 
 class GkmasResource:

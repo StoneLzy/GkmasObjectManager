@@ -7,7 +7,7 @@ from ..const import UNITY_SIGNATURE
 from ..media import GkmasDummyMedia
 from ..media.audio import GkmasUnityAudio
 from ..media.image import GkmasUnityImage
-from ..utils import ProgressReporter
+from ..rich import ProgressReporter
 from .deobfuscate import GkmasAssetBundleDeobfuscator
 from .resource import GkmasResource
 

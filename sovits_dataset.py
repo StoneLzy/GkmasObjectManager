@@ -17,7 +17,7 @@ from tqdm import tqdm
 
 import GkmasObjectManager as gom
 from GkmasObjectManager.object import GkmasResource
-from GkmasObjectManager.utils import Logger
+from GkmasObjectManager.rich import Logger
 
 logger = Logger()
 logger.info("Fetching manifest...")

@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Callable, Optional, Tuple, Union
 from zipfile import ZipFile
 
-from ..utils import ProgressReporter
+from ..rich import ProgressReporter
 
 
 class GkmasDummyMedia:
