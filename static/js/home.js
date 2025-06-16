@@ -59,12 +59,12 @@ function populateHomepageContainers(data) {
         );
     });
 
-    $("#loadingSpinner").hide();
+    $("#loadingBlinker").hide();
     $("#homepageElements").show();
 }
 
 function reportHomepageError() {
-    $("#loadingSpinner").hide();
+    $("#loadingBlinker").hide();
     $("#homeMetadata").html(`
         GkmasManifest cannot be fetched. <br>
         Check Internet connection. <br>

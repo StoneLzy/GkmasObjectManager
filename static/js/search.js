@@ -270,7 +270,7 @@ function populateSearchpageContainers(queryDisplay) {
         updateEpp((resetPage = false));
     }
 
-    $("#loadingSpinner").hide();
+    $("#loadingBlinker").hide();
     $("#searchpageElements").show();
 }
 
@@ -278,7 +278,7 @@ $(document).ready(function () {
     setAccentColorByString(query);
     let queryDisplay = query.trim().replace(/\s+/g, " "); // trimmed, duplicate spaces removed
     $("#searchInput").val(queryDisplay + " "); // allows immediate edit/resubmission
-    // search input should be displayed alongside the spinner, before a successful AJAX response
+    // search input should be displayed alongside the blinker, before a successful AJAX response
 
     tokens = queryDisplay.split(/\s+/);
 

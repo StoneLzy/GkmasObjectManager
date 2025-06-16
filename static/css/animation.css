@@ -1,6 +1,6 @@
-/* Spinners (home, search, view) */
+/* Blinkers (home, search) */
 
-#loadingSpinner {
+#loadingBlinker {
     display: flex;
     justify-content: center;
     align-items: center;
