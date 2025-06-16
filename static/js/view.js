@@ -24,10 +24,11 @@ function viewMediaPopulator(media, url, mimetype, mtime) {
             .then((blob) => JSZip.loadAsync(blob))
             .then((zip) => {
                 Object.keys(zip.files).forEach((filename) => {
-                    let row = $("<div>").addClass("row align-center my-2 gx-0");
-                    let col0 = $("<div>").addClass("col-1");
+                    let row = $("<div>").addClass(
+                        "row align-center my-2 mx-5 gx-0"
+                    );
                     let col1 = $("<div>").addClass("col-2 text-start fs-5");
-                    let col2 = $("<div>").addClass("col-9");
+                    let col2 = $("<div>").addClass("col-10");
 
                     let alias = filename.split(".")[0].split("_").pop();
                     col1.text(alias);
@@ -39,10 +40,11 @@ function viewMediaPopulator(media, url, mimetype, mtime) {
                             $("<audio>")
                                 .attr({ src: furl, controls: true })
                                 .attr("alt", filename)
+                                .addClass("w-100")
                         );
                     });
 
-                    row.append(col0).append(col1).append(col2);
+                    row.append(col1).append(col2);
                     media.append(row);
                 });
             });
