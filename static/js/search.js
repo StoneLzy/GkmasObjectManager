@@ -134,12 +134,29 @@ function refreshCardContainer() {
             .addClass("card shadow-at-hover")
             .attr("id", "searchEntryCard");
         if (entry.name.startsWith("img_")) {
-            getMediaBlobURL(entry.type, entry.id).then(
-                ({ url, mimetype, _ }) => {
-                    card.prepend(
+            let mediaContainer = $("<div>")
+                .addClass(
+                    "container align-center media-container media-container-search"
+                )
+                .append(
+                    $("<div>")
+                        .addClass("prog-container")
+                        .append(
+                            $("<div>")
+                                .addClass("prog-bar-container")
+                                .append($("<div>").addClass("prog-bar"))
+                        )
+                )
+                .append($("<div>").addClass("hide-by-default media-content"));
+            card.prepend(mediaContainer);
+            progressedMediaDriver(
+                entry.type,
+                entry.id,
+                mediaContainer,
+                (media, url, mimetype, mtime) => {
+                    media.append(
                         $("<img>")
-                            .addClass("card-img-top")
-                            .attr("id", "searchEntryCardImage")
+                            .addClass("card-img-top media-content-search")
                             .attr("src", url)
                             .attr("alt", entry.name)
                     );

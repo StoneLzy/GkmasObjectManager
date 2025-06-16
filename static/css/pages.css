@@ -62,7 +62,11 @@
     margin: 0.5rem 0;
 }
 
-#searchEntryCardImage {
+.media-container-search {
+    aspect-ratio: 2 / 1;
+}
+
+.media-content-search {
     max-height: 10rem;
     object-fit: contain;
 }
