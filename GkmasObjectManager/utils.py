@@ -55,7 +55,6 @@ def make_caption_map(commands: list[dict]) -> dict[str, str]:
     for cmd1, cmd2 in zip(commands, commands[1:]):
         if cmd1["cmd"] == "message" and cmd2["cmd"] == "voice":
 
-            alias = cmd2["voice"].split("_")[-1]
             caption = cmd1.get("text", "").strip().replace(r"\n", "")
 
             # Superscripts look like "<r\\=AAA>BBB</r>", where BBB
@@ -63,6 +62,6 @@ def make_caption_map(commands: list[dict]) -> dict[str, str]:
             caption = re.sub(r"<r\\=([^>]+)>.*</r>", r"\1", caption)
             caption = re.sub(r"<[^<>]*>", "", caption)  # remove XML tags
 
-            caption_map[alias] = caption
+            caption_map[cmd2["voice"]] = caption
 
     return caption_map

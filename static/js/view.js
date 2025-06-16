@@ -1,3 +1,4 @@
+let acb_basename = "";
 let acb_aliases = [];
 
 function viewMediaPopulator(media, url, mimetype, mtime) {
@@ -33,7 +34,18 @@ function viewMediaPopulator(media, url, mimetype, mtime) {
                     let col2 = $("<div>").addClass("col-10 text-end fs-5");
                     let col3 = $("<div>").addClass("col-12 mb-3");
 
-                    let alias = filename.split(".")[0].split("_").pop();
+                    let segments = filename.split(".")[0].split("_");
+                    let alias = segments.pop();
+                    let base = segments.join("_");
+                    if (base !== acb_basename) {
+                        console.warn(
+                            "Subsong basename mismatch: expected",
+                            acb_basename,
+                            "but got",
+                            base
+                        );
+                    }
+
                     acb_aliases.push(alias);
                     col1.text(alias);
                     col2.attr("id", "caption_" + alias).text(
@@ -79,8 +91,8 @@ function populateCaption() {
                 let captionElt = $("#caption_" + alias);
                 if (data["error"]) {
                     captionElt.text("ERROR: " + data["error"]);
-                } else if (data[alias]) {
-                    captionElt.text(data[alias]);
+                } else if (data[acb_basename + "_" + alias]) {
+                    captionElt.text(data[acb_basename + "_" + alias]);
                 } else {
                     captionElt.text("ERROR: Caption not found");
                 }
@@ -111,6 +123,7 @@ function handleUnsupportedMedia(url) {
 }
 
 $(document).ready(function () {
+    acb_basename = info.name.split(".")[0];
     setAccentColorByString(info.name);
     progressedMediaDriver(type, info.id, $("#viewMedia"), viewMediaPopulator);
 });
