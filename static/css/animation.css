@@ -7,6 +7,10 @@
     height: 90vh;
 }
 
+#loadingBlinkerImage {
+    height: 12vh;
+}
+
 .prog-container {
     width: 75%;
 }
