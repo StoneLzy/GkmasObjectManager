@@ -206,11 +206,11 @@ class GkmasDummyMedia:
 
     def _export_raw(self, path: Path):
 
-        self.reporter.start()
-
         if path.exists():
             self.reporter.warning("Already exists, aborting")
             return
+
+        self.reporter.start()
 
         path.write_bytes(self._get_raw())
         if self.mtime:
