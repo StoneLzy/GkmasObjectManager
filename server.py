@@ -92,6 +92,12 @@ def api_bytestream(type: str, id: str) -> Response:
     )
 
 
+@app.route("/api/caption_map/<name>")
+def api_caption_map(name: str) -> Response:
+    obj = _get_object("resource", name.replace("sud_vo_", "").replace(".acb", ".txt"))
+    return jsonify(obj._get_media().get_caption_map())
+
+
 # SSE endpoints
 
 

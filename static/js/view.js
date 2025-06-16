@@ -28,15 +28,19 @@ function viewMediaPopulator(media, url, mimetype, mtime) {
                         "row align-center my-2 mx-5 gx-0"
                     );
                     let col1 = $("<div>").addClass("col-2 text-start fs-5");
-                    let col2 = $("<div>").addClass("col-10");
+                    let col2 = $("<div>").addClass("col-10 text-end fs-5");
+                    let col3 = $("<div>").addClass("col-12 mb-3");
 
                     let alias = filename.split(".")[0].split("_").pop();
                     col1.text(alias);
+                    col2.attr("id", "caption_" + alias).text(
+                        "Loading caption..."
+                    );
 
                     zip.files[filename].async("blob").then((fblob) => {
                         fblob = new Blob([fblob], { type: "audio/wav" });
                         const furl = URL.createObjectURL(fblob);
-                        col2.append(
+                        col3.append(
                             $("<audio>")
                                 .attr({ src: furl, controls: true })
                                 .attr("alt", filename)
@@ -44,9 +48,10 @@ function viewMediaPopulator(media, url, mimetype, mtime) {
                         );
                     });
 
-                    row.append(col1).append(col2);
+                    row.append(col1).append(col2).append(col3);
                     media.append(row);
                 });
+                populateCaption();
             });
     } else {
         handleUnsupportedMedia(url);
@@ -58,6 +63,23 @@ function viewMediaPopulator(media, url, mimetype, mtime) {
         .attr("href", url)
         .attr("download", info.name.replace(/\.[^/.]+$/, ""))
         .removeClass("disabled");
+}
+
+function populateCaption() {
+    $.ajax({
+        url: "/api/caption_map/" + info.name,
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function (data) {
+            Object.keys(data).forEach((alias) => {
+                $("#caption_" + alias).text(data[alias]);
+            });
+        },
+        error: function (...args) {
+            dumpErrorToConsole(...args);
+        },
+    });
 }
 
 function handleUnsupportedMedia(url) {
