@@ -17,7 +17,7 @@ function viewMediaPopulator(media, url, mimetype, mtime) {
         );
     } else if (mimetype === "application/zip") {
         // an archive of WAV files (subsongs extracted from .acb)
-        $("#viewMediaContent").addClass("overflow-y-auto w-100");
+        media.addClass("overflow-y-auto w-100");
 
         fetch(url)
             .then((response) => response.blob())
