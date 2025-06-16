@@ -19,9 +19,13 @@
 }
 
 .media-container {
-    width: 100%;
     height: auto;
     overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin: 0 auto;
 }
 
 /* Navbar */
@@ -48,6 +52,10 @@
     max-width: 100%;
 }
 
+.media-container-home {
+    aspect-ratio: 16 / 9;
+}
+
 /* Search */
 
 #eppValue {
@@ -63,6 +71,7 @@
 }
 
 .media-container-search {
+    width: 100%;
     aspect-ratio: 2 / 1;
 }
 
@@ -74,8 +83,8 @@
 /* View */
 
 .media-container-view {
-    display: flex;
     flex-direction: column; /* stack children vertically */
+    width: 100%;
     aspect-ratio: 16 / 9;
     border: 2px dotted lightgray;
 }

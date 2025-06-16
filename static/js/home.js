@@ -20,9 +20,7 @@ function populateHomepageContainers(data) {
     for (let i = 0; i < NUM_FEATURED_SAMPLES; i++) {
         container.append(
             $("<div>")
-                .addClass(
-                    "container align-center media-container col-md-2 mt-3"
-                )
+                .addClass("media-container media-container-home col-md-2 mt-3")
                 .append(
                     $("<div>")
                         .addClass("prog-container")

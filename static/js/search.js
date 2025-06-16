@@ -135,9 +135,7 @@ function refreshCardContainer() {
             .attr("id", "searchEntryCard");
         if (entry.name.startsWith("img_")) {
             let mediaContainer = $("<div>")
-                .addClass(
-                    "container align-center media-container media-container-search"
-                )
+                .addClass("media-container media-container-search")
                 .append(
                     $("<div>")
                         .addClass("prog-container")
