@@ -4,7 +4,6 @@ A script to create a dataset for training a voice cloning model.
 """
 
 import json
-import re
 import shutil
 import subprocess
 import tempfile
@@ -18,6 +17,7 @@ from tqdm import tqdm
 import GkmasObjectManager as gom
 from GkmasObjectManager.object import GkmasResource
 from GkmasObjectManager.rich import Logger
+from GkmasObjectManager.utils import make_caption_map
 
 logger = Logger()
 logger.info("Fetching manifest...")
@@ -122,21 +122,13 @@ class AdvCacheHandler(CacheHandler):
     def _rectify_filename(self, p: Path) -> str:
         return p.with_suffix(".txt").name
 
-    def _update_caption_map(self, commands: list[dict]):
-        commands = sorted(
-            filter(lambda cmd: cmd["cmd"] in ["message", "voice"], commands),
-            key=lambda cmd: cmd["clip"]["_startTime"],
-        )  # m- and v- commands don't necessarily go together in raw data
-        for cmd1, cmd2 in zip(commands, commands[1:]):
-            if cmd1["cmd"] == "message" and cmd2["cmd"] == "voice":
-                self._caption_map[cmd2["voice"]] = cmd1.get("text", "")
-
     def _build_caption_map(self):
         if self._caption_map_ready:
             return
         for f in tqdm(list(self.cwd.iterdir()), desc="Building caption map"):
             assert f.suffix == ".json", f"Non-JSON file cached in {self.cwd}"
-            self._update_caption_map(json.loads(f.read_text(encoding="utf-8")))
+            commands = json.loads(f.read_text(encoding="utf-8"))
+            self._caption_map.update(make_caption_map(commands))
         self._caption_map_ready = True
 
     def cache(self, target: list[GkmasResource]):
@@ -154,12 +146,7 @@ class AdvCacheHandler(CacheHandler):
         if not filename.stem.startswith("sud_vo_adv_"):
             return ""  # hardcoded to ignore backchannel utterances
         self._build_caption_map()
-        caption = self._caption_map.get(filename.stem, "").replace(r"\n", "")
-
-        # Superscripts look like "<r\\=AAA>BBB</r>", where BBB
-        # is pronounced as AAA. We keep the pronunciation here.
-        caption = re.sub(r"<r\\=([^>]+)>.*</r>", r"\1", caption)
-        caption = re.sub(r"<[^<>]*>", "", caption)  # remove all tags (incl. emphasis)
+        caption = self._caption_map.get(filename.stem, "")
         return caption
 
     def read_multiple(self, filenames: list[Path]) -> list[str]:
