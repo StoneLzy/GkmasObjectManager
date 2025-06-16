@@ -1,3 +1,5 @@
+let acb_aliases = [];
+
 function viewMediaPopulator(media, url, mimetype, mtime) {
     $("#uploadTime").text(mtime);
 
@@ -32,6 +34,7 @@ function viewMediaPopulator(media, url, mimetype, mtime) {
                     let col3 = $("<div>").addClass("col-12 mb-3");
 
                     let alias = filename.split(".")[0].split("_").pop();
+                    acb_aliases.push(alias);
                     col1.text(alias);
                     col2.attr("id", "caption_" + alias).text(
                         "Loading caption..."
@@ -72,8 +75,15 @@ function populateCaption() {
         dataType: "json",
         contentType: "application/json; charset=utf-8",
         success: function (data) {
-            Object.keys(data).forEach((alias) => {
-                $("#caption_" + alias).text(data[alias]);
+            acb_aliases.forEach((alias) => {
+                let captionElt = $("#caption_" + alias);
+                if (data["error"]) {
+                    captionElt.text("ERROR: " + data["error"]);
+                } else if (data[alias]) {
+                    captionElt.text(data[alias]);
+                } else {
+                    captionElt.text("ERROR: Caption not found");
+                }
             });
         },
         error: function (...args) {

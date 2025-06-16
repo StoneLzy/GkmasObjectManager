@@ -33,10 +33,16 @@ def _get_object(
     type: str, id: Union[int, str]
 ) -> Union[GkmasAssetBundle, GkmasResource]:
     m = _get_manifest()
+
+    try:
+        id = int(id)
+    except ValueError:
+        pass
+
     if type == "assetbundle":
-        return m.assetbundles[int(id)]
+        return m.assetbundles[id]
     elif type == "resource":
-        return m.resources[int(id)]
+        return m.resources[id]
     else:
         raise ValueError(f"Unknown type: {type}")
 
@@ -94,8 +100,19 @@ def api_bytestream(type: str, id: str) -> Response:
 
 @app.route("/api/caption_map/<name>")
 def api_caption_map(name: str) -> Response:
-    obj = _get_object("resource", name.replace("sud_vo_", "").replace(".acb", ".txt"))
-    return jsonify(obj._get_media().get_caption_map())
+    try:
+        ret = (
+            _get_object("resource", name.replace("sud_vo_", "").replace(".acb", ".txt"))
+            ._get_media()
+            .get_caption_map()
+        )
+    except KeyError:
+        ret = {"error": "Caption not found"}
+    except AttributeError:
+        ret = {"error": "Caption not supported"}
+    except ValueError:
+        ret = {"error": "Caption loading failed"}
+    return jsonify(ret)
 
 
 # SSE endpoints

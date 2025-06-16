@@ -4,6 +4,7 @@ Adventure (story script) plugin for GkmasResource.
 """
 
 import json
+import re
 
 from ..media import GkmasDummyMedia
 from .parser import GkadvCommandParser
@@ -48,6 +49,8 @@ class GkmasAdventure(GkmasDummyMedia):
             if cmd1["cmd"] == "message" and cmd2["cmd"] == "voice":
                 alias = cmd2["voice"].split("_")[-1]
                 caption = cmd1.get("text", "").strip().replace(r"\n", "")
+                caption = re.sub(r"<r\\=([^>]+)>.*</r>", r"\1", caption)  # intonation
+                caption = re.sub(r"<[^<>]*>", "", caption)  # XML tags
                 caption_map[alias] = caption
 
         return caption_map
