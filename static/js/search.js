@@ -123,6 +123,7 @@ function highlightTokens(text) {
 }
 
 function refreshCardContainer() {
+    $("html, body").animate({ scrollTop: 0 }, "fast");
     $("#searchEntryCardContainer").empty();
 
     let start = (currentPage - 1) * entriesPerPage;
