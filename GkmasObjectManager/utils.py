@@ -45,6 +45,8 @@ def make_caption_map(commands: list[dict]) -> dict[str, str]:
     of voicelines' *in-archive aliases* to their captions.
     """
 
+    from .const import DEFAULT_USERNAME
+
     caption_map = {}
 
     commands = sorted(
@@ -56,6 +58,7 @@ def make_caption_map(commands: list[dict]) -> dict[str, str]:
         if cmd1["cmd"] == "message" and cmd2["cmd"] == "voice":
 
             caption = cmd1.get("text", "").strip().replace(r"\n", "")
+            caption = caption.replace("{user}", DEFAULT_USERNAME)
 
             # Superscripts look like "<r\\=AAA>BBB</r>", where BBB
             # is pronounced as AAA. We keep the pronunciation here.
