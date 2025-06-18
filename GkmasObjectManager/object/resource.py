@@ -197,7 +197,8 @@ class GkmasResource:
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
-    def _determine_subdir(self, filename: str) -> Path:
+    @staticmethod
+    def _determine_subdir(filename: str) -> Path:
         """
         [INTERNAL] Automatically organize files into nested subdirectories,
         stopping at the first 'character identifier'.

@@ -48,8 +48,8 @@ class GkmasImage(GkmasDummyMedia):
 
         return io.getvalue()
 
+    @staticmethod
     def _determine_new_size(
-        self,
         size: Tuple[int, int],
         ratio: str,
         mode: Union["maximize", "ensure_fit", "preserve_npixel"] = "maximize",

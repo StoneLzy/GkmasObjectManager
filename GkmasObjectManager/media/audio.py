@@ -55,7 +55,8 @@ class GkmasAWBAudio(GkmasDummyMedia):
         self.mimetype = "audio"
         self.default_converted_format = "wav"
 
-    def _make_vgmstream_args(self, tmp_in: str, tmp_out: str, suffix: str) -> list:
+    @staticmethod
+    def _make_vgmstream_args(tmp_in: str, tmp_out: str, suffix: str) -> list:
         return [
             Path(__file__).parent.parent / f"bin/vgmstream/vgmstream-{suffix}",
             "-o",
@@ -132,7 +133,8 @@ class GkmasAWBAudio(GkmasDummyMedia):
 class GkmasACBAudio(GkmasAWBAudio):
     """Conversion plugin for ACB audio archive."""
 
-    def _make_vgmstream_args(self, tmp_in: str, tmp_out: str, suffix: str) -> list:
+    @staticmethod
+    def _make_vgmstream_args(tmp_in: str, tmp_out: str, suffix: str) -> list:
         return [
             Path(__file__).parent.parent / f"bin/vgmstream/vgmstream-{suffix}",
             "-S",  # select subsongs

@@ -38,7 +38,8 @@ class CacheHandler:
         else:
             self.cwd.mkdir(parents=True, exist_ok=True)
 
-    def _rectify_filename(self, p: Path) -> str:
+    @staticmethod
+    def _rectify_filename(p: Path) -> str:
         return p.name
 
     def cache(self, target: list[GkmasResource]):
@@ -68,7 +69,8 @@ class CacheHandler:
 
 class SudCacheHandler(CacheHandler):
 
-    def _rectify_filename(self, p: Path) -> str:
+    @staticmethod
+    def _rectify_filename(p: Path) -> str:
         f = p.name
         if f.startswith("sud_vo_adv_"):
             f = "_".join(f.split("_")[:-1])
@@ -119,7 +121,8 @@ class AdvCacheHandler(CacheHandler):
         super().__init__(cwd, args)
         self.active = args.caption
 
-    def _rectify_filename(self, p: Path) -> str:
+    @staticmethod
+    def _rectify_filename(p: Path) -> str:
         return p.with_suffix(".txt").name
 
     def _build_caption_map(self):
