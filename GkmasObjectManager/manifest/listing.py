@@ -4,7 +4,11 @@ listing.py
 optimized for indexing and comparison.
 """
 
-from typing import Union
+from typing import Optional, Union
+
+from ..object import GkmasAssetBundle, GkmasResource
+
+ObjectClass = Union[GkmasAssetBundle, GkmasResource]
 
 
 class GkmasObjectList:
@@ -20,14 +24,14 @@ class GkmasObjectList:
     """
 
     infos: list[dict]
-    base_class: object
+    base_class: ObjectClass
     url_template: str
 
-    _objects: list[object]
+    _objects: list[Optional[ObjectClass]]
     _id_idx: dict[int, int]
     _name_idx: dict[str, int]
 
-    def __init__(self, infos: list[dict], base_class: object, url_template: str):
+    def __init__(self, infos: list[dict], base_class: ObjectClass, url_template: str):
         infos.sort(key=lambda x: x["id"])
 
         self.infos = infos
@@ -42,13 +46,13 @@ class GkmasObjectList:
     def __repr__(self) -> str:
         return f"<GkmasObjectList of {len(self.infos)} {self.base_class.__name__}'s>"
 
-    def _get_object(self, idx: int) -> object:
+    def _get_object(self, idx: int) -> ObjectClass:
         # necessary for enabling cache everywhere
         if self._objects[idx] is None:
             self._objects[idx] = self.base_class(self.infos[idx], self.url_template)
         return self._objects[idx]
 
-    def __getitem__(self, key: Union[int, str]) -> object:
+    def __getitem__(self, key: Union[int, str]) -> ObjectClass:
 
         if isinstance(key, int):
             idx = self._id_idx[key]

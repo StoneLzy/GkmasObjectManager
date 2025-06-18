@@ -8,6 +8,7 @@ import json
 import re
 import subprocess
 from pathlib import Path
+from typing import Union
 
 import pandas as pd
 import yaml
@@ -21,6 +22,8 @@ from ..utils import nocache
 from .listing import GkmasObjectList
 from .octodb_pb2 import dict2pdbytes
 from .revision import GkmasManifestRevision
+
+ObjectClass = Union[GkmasAssetBundle, GkmasResource]
 
 # The logger would better be a global variable in the
 # modular __init__.py, but Python won't allow me to
@@ -107,7 +110,7 @@ class GkmasManifest:
     def __repr__(self) -> str:
         return f"<GkmasManifest revision {self.revision} with {len(self.assetbundles)} assetbundles and {len(self.resources)} resources>"
 
-    def __getitem__(self, key: str) -> object:
+    def __getitem__(self, key: str) -> ObjectClass:
         try:
             return self.assetbundles[key]
         except KeyError:
@@ -280,7 +283,7 @@ class GkmasManifest:
         criterion: str,
         by_name: bool = True,
         ascending: bool = True,
-    ) -> list[object]:
+    ) -> list[ObjectClass]:
         """
         Searches the manifest for objects matching the specified criterion.
         Returns a list of objects.
