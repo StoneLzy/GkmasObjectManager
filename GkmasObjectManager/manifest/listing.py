@@ -78,9 +78,9 @@ class GkmasObjectList:
         assert self.base_class == other.base_class
         canon_reprs = []
         for entry in self:
-            this_repr = entry._get_canon_repr()
+            this_repr = entry.canon_repr
             try:
-                other_repr = other[entry.name]._get_canon_repr()
+                other_repr = other[entry.name].canon_repr
             except KeyError:
                 canon_reprs.append(this_repr)
             else:
@@ -91,14 +91,15 @@ class GkmasObjectList:
     def __add__(self, other: "GkmasObjectList") -> "GkmasObjectList":
         # 'other' is assumed to be newer, since revision is not accessible here
         assert self.base_class == other.base_class
-        mapped = {entry["id"]: entry for entry in self._get_canon_repr()}
-        mapped.update({entry["id"]: entry for entry in other._get_canon_repr()})  # hack
+        mapped = {entry["id"]: entry for entry in self.canon_repr}
+        mapped.update({entry["id"]: entry for entry in other.canon_repr})  # hack
         return GkmasObjectList(
             list(mapped.values()), self.base_class, self.url_template
         )
 
-    def _get_canon_repr(self) -> list[dict]:
+    @property
+    def canon_repr(self) -> list[dict]:
         """
         [INTERNAL] Returns the JSON-compatible "canonical" representation of the object list.
         """
-        return [entry._get_canon_repr() for entry in self]
+        return [entry.canon_repr for entry in self]

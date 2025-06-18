@@ -155,14 +155,15 @@ class GkmasManifest:
             }
         )
 
-    def _get_canon_repr(self) -> dict:
+    @property
+    def canon_repr(self) -> dict:
         """
         [INTERNAL] Returns the JSON-compatible "canonical" representation of the manifest.
         """
         return {
-            "revision": self.revision._get_canon_repr(),
-            "assetBundleList": self.assetbundles._get_canon_repr(),
-            "resourceList": self.resources._get_canon_repr(),
+            "revision": self.revision.canon_repr,
+            "assetBundleList": self.assetbundles.canon_repr,
+            "resourceList": self.resources.canon_repr,
             "urlFormat": self.urlformat,
         }
 
@@ -226,7 +227,7 @@ class GkmasManifest:
         if path.suffix != ".pdb":
             logger.warning("Attempting to write ProtoDB into a non-.pdb file")
 
-        jdict = self._get_canon_repr()
+        jdict = self.canon_repr
         if isinstance(jdict["revision"], tuple):
             logger.warning("Exporting a diff manifest as ProtoDB, base revision lost")
             jdict["revision"] = jdict["revision"][0]
@@ -246,7 +247,7 @@ class GkmasManifest:
             logger.warning("Attempting to write JSON into a non-.json file")
 
         try:
-            path.write_text(json.dumps(self._get_canon_repr(), indent=4))
+            path.write_text(json.dumps(self.canon_repr, indent=4))
             logger.success(f"JSON has been written into {path}")
         except TypeError:  # non-JSON-serializable object in dict
             logger.error(f"Failed to write JSON into {path}")
@@ -264,9 +265,9 @@ class GkmasManifest:
         # [RESOLVED] Forced list conversion is necessary since GkmasObjectList overrides __iter__,
         # which handles integer keys (index by ID) and messes up with standard modules
         # like pandas that rely on self[0] as a "sample" object from the list.
-        dfa = pd.DataFrame(self.assetbundles._get_canon_repr(), columns=CSV_COLUMNS)
+        dfa = pd.DataFrame(self.assetbundles.canon_repr, columns=CSV_COLUMNS)
         dfa["name"] = dfa["name"].apply(lambda x: x + ".unity3d")  # stripped in canon
-        dfr = pd.DataFrame(self.resources._get_canon_repr(), columns=CSV_COLUMNS)
+        dfr = pd.DataFrame(self.resources.canon_repr, columns=CSV_COLUMNS)
         df = pd.concat([dfa, dfr], ignore_index=True)
         df.sort_values("name", inplace=True)
 
@@ -346,7 +347,7 @@ class GkmasManifest:
             preset = yaml.safe_load(f)
 
         root = preset.get("root", DEFAULT_DOWNLOAD_PATH)
-        root = root.replace("{revision}", f"v{self.revision._get_canon_repr()}")
+        root = root.replace("{revision}", f"v{self.revision.canon_repr}")
 
         global_kwargs = preset.get("global-kwargs", {})
         proto_instrs = preset.get("instructions", [])

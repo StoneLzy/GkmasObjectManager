@@ -43,13 +43,14 @@ class GkmasDummyMedia:
     downloader: Callable[[], dict]
     reporter: ProgressReporter
 
+    _raw: Optional[bytes] = None
+    _converted: Optional[bytes] = None
+
     # Children should override raw_format if raw bytes is "ready"
     #   or converted_format as the default target, but **not both.**
     # On the other hand, self.mimetype since it's mandatory.
     mimetype: str = ""
-    raw: Optional[bytes] = None
     raw_format: str = ""
-    converted: Optional[bytes] = None
     converted_format: str = ""
     default_converted_format: str = ""
 
@@ -106,7 +107,7 @@ class GkmasDummyMedia:
         ).lower()
 
         if self.raw_format == fmt:  # rawdump
-            _bytes = self._get_raw()  # must be called before accessing self.mtime
+            _bytes = self.raw  # must be called before accessing self.mtime
             return {
                 "bytes": _bytes,
                 "mimetype": (
@@ -122,10 +123,10 @@ class GkmasDummyMedia:
             self.converted_format != fmt or image_resize != self.image_resize
         ):  # record and convert
             self.converted_format = fmt
-            self.converted = None  # invalidate cache
+            self._converted = None  # invalidate cache
             self.image_resize = image_resize
 
-        _bytes = self._get_converted()
+        _bytes = self.converted
         return {
             "bytes": _bytes,
             "mimetype": (
@@ -162,23 +163,25 @@ class GkmasDummyMedia:
         ).lower()
         return fmt if (fmt and self.mimetype) else self.ext
 
-    def _get_raw(self) -> bytes:
-        if self.raw is not None:
-            return self.raw  # read from cache
+    @property
+    def raw(self) -> bytes:
+        if self._raw is not None:
+            return self._raw  # read from cache
         data = self.downloader()
         self.mtime = data["mtime"]  # unconditionally cache, as a metadata field
         if self.ENABLE_CACHE:
-            self.raw = data["bytes"]
+            self._raw = data["bytes"]
         return data["bytes"]  # cached or not, this is "valid"
 
-    def _get_converted(self) -> bytes:
-        if self.converted is not None:
-            return self.converted  # assumes proper invalidation beforehand
-        raw = self._get_raw()
+    @property
+    def converted(self) -> bytes:
+        if self._converted is not None:
+            return self._converted  # assumes proper invalidation beforehand
+        raw = self.raw
         self.reporter.update("Converting")
         converted = self._convert(raw)
         if self.ENABLE_CACHE:
-            self.converted = converted
+            self._converted = converted
         return converted
 
     def export(self, path: Path, **kwargs):
@@ -212,7 +215,7 @@ class GkmasDummyMedia:
 
         self.reporter.start()
 
-        path.write_bytes(self._get_raw())
+        path.write_bytes(self.raw)
         if self.mtime:
             os.utime(path, (self.mtime, self.mtime))
 

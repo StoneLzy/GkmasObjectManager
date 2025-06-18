@@ -58,7 +58,7 @@ def _sanitize_mtime(mtime: float) -> str:
 
 @app.route("/api/manifest")
 def api_manifest() -> Response:
-    return jsonify(_get_manifest()._get_canon_repr())
+    return jsonify(_get_manifest().canon_repr)
 
 
 @app.route("/api/search")
@@ -104,7 +104,7 @@ def api_caption_map(name: str) -> Response:
         ret = (
             _get_object("resource", name.replace("sud_vo_", "").replace(".acb", ".txt"))
             ._get_media()
-            .get_caption_map()
+            .caption_map
         )
     except KeyError:
         ret = {"error": "Caption not found"}
@@ -194,7 +194,7 @@ def view(type: str, id: str) -> str:
     except (ValueError, KeyError):
         return render_template("404.html")
 
-    info = obj._get_canon_repr()
+    info = obj.canon_repr
     info["raw_url"] = obj._url
     if "dependencies" in info:
         info["dependencies"] = [

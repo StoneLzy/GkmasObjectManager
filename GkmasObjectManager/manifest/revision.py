@@ -39,7 +39,8 @@ class GkmasManifestRevision:
         else:
             return f"v{self.this}-diff-v{self.base}"
 
-    def _get_canon_repr(self) -> Union[int, tuple[int, int]]:
+    @property
+    def canon_repr(self) -> Union[int, tuple[int, int]]:
         """
         [INTERNAL] Returns the "canonical" representation of the revision,
         either as an integer or a tuple. Used in manifest export.

@@ -51,8 +51,9 @@ class GkmasAssetBundle(GkmasResource):
     def __repr__(self) -> str:
         return f"<GkmasAssetBundle {self._idname}>"
 
-    def _get_canon_repr(self) -> dict:
-        canon = super()._get_canon_repr()
+    @property
+    def canon_repr(self) -> dict:
+        canon = super().canon_repr
         canon["name"] = canon["name"].replace(".unity3d", "")
         return canon
 

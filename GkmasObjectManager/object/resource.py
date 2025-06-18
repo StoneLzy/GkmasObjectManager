@@ -80,7 +80,8 @@ class GkmasResource:
     def __repr__(self) -> str:
         return f"<GkmasResource {self._idname}>"
 
-    def _get_canon_repr(self) -> dict:
+    @property
+    def canon_repr(self) -> dict:
         # this format retains the order of fields
         return {field: getattr(self, field) for field in self._fields}
 

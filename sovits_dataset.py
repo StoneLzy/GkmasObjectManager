@@ -200,7 +200,7 @@ if __name__ == "__main__":
     if args.output == "":
         args.output = "".join(
             [
-                f"sovits_dataset_v{m.revision._get_canon_repr()}",
+                f"sovits_dataset_v{m.revision.canon_repr}",
                 f"_{args.character}",
                 "_greedy" if args.greedy else "",
                 "_captioned" if args.caption else "",
