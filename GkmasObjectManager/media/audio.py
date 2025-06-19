@@ -60,8 +60,10 @@ class GkmasAWBAudio(GkmasDummyMedia):
     def _make_vgmstream_args(tmp_in: str, tmp_out: str, suffix: str) -> list:
         return [
             Path(__file__).parent.parent / f"bin/vgmstream/vgmstream-{suffix}",
+            "-S",  # select subsongs
+            "-1",  # all of them (this is a number; shell=True forces string args)
             "-o",
-            Path(tmp_out, "converted.wav"),  # name can be anything except '?n' wildcard
+            Path(tmp_out, "?s.wav"),  # use subsong number (stream names are identical)
             tmp_in,
         ]
 
@@ -121,24 +123,11 @@ class GkmasAWBAudio(GkmasDummyMedia):
 
     def _write_segments(self, segments: list[Tuple[str, AudioSegment]]) -> bytes:
 
-        if len(segments) == 1:
-            return segments[0][1].export(format=self.converted_format).read()
-            # discard stream name and follow filename
-
-        with BytesIO() as buffer:
-            with ZipFile(buffer, "w") as zip_file:
-                dt = (
-                    datetime.fromtimestamp(self.mtime) if self.mtime else datetime.now()
-                )
-                for f, segment in segments:
-                    zip_file.writestr(
-                        ZipInfo(
-                            Path(f).with_suffix(f".{self.converted_format}").name,
-                            date_time=dt.timetuple(),
-                        ),
-                        segment.export(format=self.converted_format).read(),
-                    )
-            return buffer.getvalue()
+        return (
+            sum([seg for _, seg in segments])  # concatenate all segments
+            .export(format=self.converted_format)
+            .read()
+        )
 
 
 class GkmasACBAudio(GkmasAWBAudio):
@@ -148,8 +137,8 @@ class GkmasACBAudio(GkmasAWBAudio):
     def _make_vgmstream_args(tmp_in: str, tmp_out: str, suffix: str) -> list:
         return [
             Path(__file__).parent.parent / f"bin/vgmstream/vgmstream-{suffix}",
-            "-S",  # select subsongs
-            "-1",  # all of them (this is a number; shell=True forces string args)
+            "-S",
+            "-1",
             "-o",
             Path(tmp_out, "?n.wav"),  # use internal stream name
             tmp_in,
