@@ -101,11 +101,9 @@ def api_bytestream(type: str, id: str) -> Response:
 @app.route("/api/caption_map/<name>")
 def api_caption_map(name: str) -> Response:
     try:
-        ret = (
-            _get_object("resource", name.replace("sud_vo_", "").replace(".acb", ".txt"))
-            ._get_media()
-            .caption_map
-        )
+        ret = _get_object(
+            "resource", name.replace("sud_vo_", "").replace(".acb", ".txt")
+        ).media.caption_map
     except KeyError:
         ret = {"error": "Caption not found"}
     except AttributeError:
