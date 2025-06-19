@@ -78,6 +78,7 @@ class ProgressReporter:
         progress: Optional[Progress] = None,
         task_id: Optional[int] = None,
         upstream: Optional[Queue[dict]] = None,
+        **kwargs,  # wildcard, catches any unused parameters for compatibility
     ):
         """
         Registers the progress reporter with a Progress instance or task ID.

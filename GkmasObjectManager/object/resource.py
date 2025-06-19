@@ -85,27 +85,6 @@ class GkmasResource:
         # this format retains the order of fields
         return {field: getattr(self, field) for field in self._fields}
 
-    def _register_reporter(
-        self,
-        progress: Optional[Progress] = None,
-        task_id: Optional[int] = None,
-        upstream: Optional[Queue[dict]] = None,
-        **kwargs,  # wildcard
-    ):
-        """
-        [INTERNAL] Registers reporter for internal progress tracking.
-
-        Args:
-            progress (Progress, optional): A Progress instance to register the progress reporter.
-                If None, a disposable Progress instance is created.
-            task_id (int, optional): Task ID to register the progress reporter.
-                Must be None if progress is None, and vice versa.
-            upstream (Queue[dict], optional): A queue to register the progress reporter.
-                If provided, suppresses console output.
-        """
-
-        self._reporter.register(progress, task_id, upstream)
-
     @property
     def _media_class(self) -> type:
         if self.name.startswith("img_"):
@@ -123,14 +102,13 @@ class GkmasResource:
         else:
             return GkmasDummyMedia
 
-    def _get_media(self, **kwargs) -> GkmasDummyMedia:
+    @property
+    def media(self) -> GkmasDummyMedia:
         """
         [INTERNAL] Instantiates a high-level media class based on the resource name.
         Used to dispatch download and extraction.
         SIDE EFFECT: Also registers progress reporter.
         """
-
-        self._register_reporter(**kwargs)
 
         if self._media is None:
             self._media = self._media_class(
@@ -153,7 +131,8 @@ class GkmasResource:
         Returns:
             dict: A dictionary of keys "bytes", "mimetype", and "mtime".
         """
-        return self._get_media(**kwargs).get_data(**kwargs)
+        self._reporter.register(**kwargs)
+        return self.media.get_data(**kwargs)
 
     def download(
         self,
@@ -171,8 +150,9 @@ class GkmasResource:
                 If False, the object is directly downloaded to the specified 'path'.
         """
 
+        self._reporter.register(**kwargs)
         path = self._download_path(path, categorize)
-        self._get_media(**kwargs).export(path, **kwargs)
+        self.media.export(path, **kwargs)
 
     def _download_path(self, path: PathArgtype, categorize: bool) -> Path:
         """
