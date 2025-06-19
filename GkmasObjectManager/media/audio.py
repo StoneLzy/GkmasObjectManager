@@ -10,6 +10,7 @@ import tempfile
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
+from typing import Tuple
 from zipfile import ZipFile, ZipInfo
 
 import UnityPy
@@ -68,6 +69,13 @@ class GkmasAWBAudio(GkmasDummyMedia):
         # uses pydub in vastly different ways,
         # thus this class is not inherited from GkmasAudio
 
+        segments = self._read_segments(raw)
+        if not segments:
+            self.reporter.error("Found no audio segments in the archive.")
+        return self._write_segments(segments)
+
+    def _read_segments(self, raw: bytes) -> list[Tuple[str, AudioSegment]]:
+
         segments = []
         success = False
         exception = None
@@ -106,9 +114,12 @@ class GkmasAWBAudio(GkmasDummyMedia):
                 exception = e
 
         Path(tmp_in.name).unlink()
-
         if not success:
             raise exception  # delay the exception after cleanup
+
+        return segments
+
+    def _write_segments(self, segments: list[Tuple[str, AudioSegment]]) -> bytes:
 
         if len(segments) == 1:
             return segments[0][1].export(format=self.converted_format).read()
@@ -143,3 +154,24 @@ class GkmasACBAudio(GkmasAWBAudio):
             Path(tmp_out, "?n.wav"),  # use internal stream name
             tmp_in,
         ]
+
+    def _write_segments(self, segments: list[Tuple[str, AudioSegment]]) -> bytes:
+
+        if len(segments) == 1:
+            return segments[0][1].export(format=self.converted_format).read()
+            # discard stream name and follow filename
+
+        with BytesIO() as buffer:
+            with ZipFile(buffer, "w") as zip_file:
+                dt = (
+                    datetime.fromtimestamp(self.mtime) if self.mtime else datetime.now()
+                )
+                for f, segment in segments:
+                    zip_file.writestr(
+                        ZipInfo(
+                            Path(f).with_suffix(f".{self.converted_format}").name,
+                            date_time=dt.timetuple(),
+                        ),
+                        segment.export(format=self.converted_format).read(),
+                    )
+            return buffer.getvalue()
