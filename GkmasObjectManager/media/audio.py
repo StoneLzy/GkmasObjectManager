@@ -68,7 +68,7 @@ class GkmasAWBAudio(GkmasDummyMedia):
         # uses pydub in vastly different ways,
         # thus this class is not inherited from GkmasAudio
 
-        audio = None
+        segments = []
         success = False
         exception = None
 
@@ -98,7 +98,7 @@ class GkmasAWBAudio(GkmasDummyMedia):
                     stderr=subprocess.DEVNULL,  # suppresses console output
                     check=True,
                 )
-                audio = [
+                segments = [
                     (f.name, AudioSegment.from_file(f)) for f in Path(tmp_out).iterdir()
                 ]
                 success = True
@@ -110,8 +110,8 @@ class GkmasAWBAudio(GkmasDummyMedia):
         if not success:
             raise exception  # delay the exception after cleanup
 
-        if len(audio) == 1:
-            return audio[0][1].export(format=self.converted_format).read()
+        if len(segments) == 1:
+            return segments[0][1].export(format=self.converted_format).read()
             # discard stream name and follow filename
 
         with BytesIO() as buffer:
@@ -119,7 +119,7 @@ class GkmasAWBAudio(GkmasDummyMedia):
                 dt = (
                     datetime.fromtimestamp(self.mtime) if self.mtime else datetime.now()
                 )
-                for f, segment in audio:
+                for f, segment in segments:
                     zip_file.writestr(
                         ZipInfo(
                             Path(f).with_suffix(f".{self.converted_format}").name,
