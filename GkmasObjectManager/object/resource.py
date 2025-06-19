@@ -106,6 +106,23 @@ class GkmasResource:
 
         self._reporter.register(progress, task_id, upstream)
 
+    @property
+    def _media_class(self) -> type:
+        if self.name.startswith("img_"):
+            return GkmasImage
+        elif self.name.startswith("sud_") and self.name.endswith(".awb"):
+            return GkmasAWBAudio
+        elif self.name.startswith("sud_") and self.name.endswith(".acb"):
+            return GkmasACBAudio
+        elif self.name.startswith("sud_"):
+            return GkmasAudio
+        elif self.name.startswith("mov_"):
+            return GkmasUSMVideo
+        elif self.name.startswith("adv_"):
+            return GkmasAdventure
+        else:
+            return GkmasDummyMedia
+
     def _get_media(self, **kwargs) -> GkmasDummyMedia:
         """
         [INTERNAL] Instantiates a high-level media class based on the resource name.
@@ -116,21 +133,7 @@ class GkmasResource:
         self._register_reporter(**kwargs)
 
         if self._media is None:
-            if self.name.startswith("img_"):
-                media_class = GkmasImage
-            elif self.name.startswith("sud_") and self.name.endswith(".awb"):
-                media_class = GkmasAWBAudio
-            elif self.name.startswith("sud_") and self.name.endswith(".acb"):
-                media_class = GkmasACBAudio
-            elif self.name.startswith("sud_"):
-                media_class = GkmasAudio
-            elif self.name.startswith("mov_"):
-                media_class = GkmasUSMVideo
-            elif self.name.startswith("adv_"):
-                media_class = GkmasAdventure
-            else:
-                media_class = GkmasDummyMedia
-            self._media = media_class(
+            self._media = self._media_class(
                 self.name.split(".")[-1],  # use extension as raw format
                 self._download_bytes,
                 self._reporter,
