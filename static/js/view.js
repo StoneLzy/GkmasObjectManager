@@ -34,15 +34,15 @@ function viewMediaPopulator(media, url, mimetype, mtime) {
                     let col2 = $("<div>").addClass("col-10 text-end fs-5");
                     let col3 = $("<div>").addClass("col-12 mb-3");
 
-                    let segments = filename.split(".")[0].split("_");
-                    let alias = segments.pop();
-                    let base = segments.join("_");
-                    if (base !== acb_basename) {
+                    let alias = filename.split(".")[0];
+                    if (filename.startsWith(acb_basename)) {
+                        alias = alias.slice(acb_basename.length + 1);
+                    } else {
                         console.warn(
                             "Subsong basename mismatch: expected",
                             acb_basename,
                             "but got",
-                            base
+                            filename
                         );
                     }
 
