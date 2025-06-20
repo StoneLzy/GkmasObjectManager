@@ -430,11 +430,6 @@ class GkmasManifest:
         if not isinstance(obj_kw[0], tuple):
             obj_kw = [(obj, {}) for obj in obj_kw]
 
-        # if "kwargs" is not empty, broadcast to all pairs
-        if kwargs:
-            obj_kw = [(obj, {**kw, **kwargs}) for (obj, kw) in obj_kw]
-
-        tasks = []
         progress = Progress(
             TextColumn("{task.description}"),
             BarColumn(),
@@ -443,14 +438,18 @@ class GkmasManifest:
         )
         progress.start()
 
-        for obj, kw in obj_kw:
-            kw["progress"] = progress
-            kw["task_id"] = progress.add_task(obj._idname, visible=False)
-            tasks.append(
-                asyncio.create_task(
-                    asyncio.to_thread(obj.download, **kw),
-                ),
+        tasks = [
+            asyncio.create_task(
+                asyncio.to_thread(
+                    obj.download,
+                    progress=progress,
+                    task_id=progress.add_task(obj._idname, visible=False),
+                    **kw,
+                    **kwargs,  # if not empty, broadcast to all tasks
+                )
             )
+            for obj, kw in obj_kw
+        ]
 
         await asyncio.gather(*tasks)
         progress.stop()
