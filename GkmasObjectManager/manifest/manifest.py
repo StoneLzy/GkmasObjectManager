@@ -13,7 +13,7 @@ from typing import Union
 import pandas as pd
 import yaml
 from google.protobuf.json_format import ParseError
-from rich.progress import BarColumn, Progress, TextColumn, TimeElapsedColumn
+from rich.progress import BarColumn, Progress, TextColumn
 
 from ..const import CHARACTER_ABBREVS, CSV_COLUMNS, DEFAULT_DOWNLOAD_PATH, PathArgtype
 from ..object import GkmasAssetBundle, GkmasResource
@@ -434,9 +434,7 @@ class GkmasManifest:
             TextColumn("{task.description}"),
             BarColumn(),
             TextColumn("{task.completed}/{task.total}"),
-            TimeElapsedColumn(),
         )
-        progress.start()
 
         tasks = [
             asyncio.create_task(
@@ -451,5 +449,6 @@ class GkmasManifest:
             for obj, kw in obj_kw
         ]
 
+        progress.start()
         await asyncio.gather(*tasks)
         progress.stop()
