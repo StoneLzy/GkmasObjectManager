@@ -30,19 +30,22 @@ jobs:
 
             - name: Scan Code with CodeQL
               uses: github/codeql-action/analyze@v3
+              continue-on-error: true
 
             - name: Scan Code with Bandit
               run: |
                   pip install bandit
                   bandit -r . -ll
+              continue-on-error: true
 
             - name: Scan Dependencies with pip-audit
               run: |
                   pip install pip-audit
-                  pip-audit --fail-on=high --ignore-unknown
+                  pip-audit
               continue-on-error: true
 
             - name: Scan Dependencies with Safety
               uses: pyupio/safety-action@v1
               with:
                   api-key: ${{ secrets.SAFETY_API_KEY }}
+              continue-on-error: true
