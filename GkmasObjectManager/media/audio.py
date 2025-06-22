@@ -61,7 +61,7 @@ class GkmasAWBAudio(GkmasDummyMedia):
         return [
             Path(__file__).parent.parent / f"bin/vgmstream/vgmstream-{suffix}",
             "-S",  # select subsongs
-            "-1",  # all of them (this is a number; shell=True forces string args)
+            "-1",  # all of them (this is a number)
             "-o",
             Path(tmp_out, "?s.wav"),  # use subsong number (stream names are identical)
             tmp_in,
@@ -103,7 +103,6 @@ class GkmasAWBAudio(GkmasDummyMedia):
             try:
                 subprocess.run(
                     self._make_vgmstream_args(tmp_in.name, tmp_out, exe_suffix),
-                    shell=True,  # Otherwise, gets [WinError 193] 'invalid Win32 application'
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,  # suppresses console output
                     check=True,
