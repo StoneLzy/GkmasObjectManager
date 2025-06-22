@@ -23,21 +23,23 @@ jobs:
                   python -m pip install --upgrade pip
                   pip install -r requirements.txt
 
-            - name: Scan Code with CodeQL
+            - name: Set up CodeQL
               uses: github/codeql-action/init@v3
               with:
                   languages: python
+
+            - name: Scan Code with CodeQL
               uses: github/codeql-action/analyze@v3
 
             - name: Scan Code with Bandit
               run: |
-                pip install bandit
-                bandit -r . -ll
+                  pip install bandit
+                  bandit -r . -ll
 
             - name: Scan Dependencies with pip-audit
               run: |
-                pip install pip-audit
-                pip-audit --fail-on=high --ignore-unknown
+                  pip install pip-audit
+                  pip-audit --fail-on=high --ignore-unknown
               continue-on-error: true
 
             - name: Scan Dependencies with Safety
