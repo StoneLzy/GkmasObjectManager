@@ -103,7 +103,7 @@ m.download_preset("presets/namecard_kit.yml")
     - `img_general_commu_chapter-(header|thumb)_##-##`
     - `img_general_commu_thumb_unit_##-##-##`
     - `img_general_commu_idol-top_IDOL-thumb`
-    - `img_general_commu_dearness_IDOl-banner`
+    - `img_general_commu_dearness_IDOL-banner`
     - ...
   - ...
 - Audio `sud`

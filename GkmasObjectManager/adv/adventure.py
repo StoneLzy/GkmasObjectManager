@@ -4,7 +4,6 @@ Adventure (story script) plugin for GkmasResource.
 """
 
 import json
-import re
 
 from ..media import GkmasDummyMedia
 from ..utils import make_caption_map

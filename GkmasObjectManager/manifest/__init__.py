@@ -61,7 +61,7 @@ def load(src: PathArgtype, base_revision: int = 0) -> GkmasManifest:
             - a decrypted protobuf, or
             - a JSON file exported from another manifest.
         base_revision (int) = 0: The revision number of the base manifest.
-            **Must be manually specified if loading a diff genereated
+            **Must be manually specified if loading a diff generated
             by GkmasObjectManager older than or equal to v0.4-beta.**
     """
     try:

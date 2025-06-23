@@ -8,7 +8,7 @@ import json
 import re
 import subprocess
 from pathlib import Path
-from typing import Union
+from typing import Tuple, Union
 
 import pandas as pd
 import yaml
@@ -421,7 +421,11 @@ class GkmasManifest:
         """
         asyncio.run(self._dispatch(list(self), **kwargs))
 
-    async def _dispatch(self, obj_kw: list, **kwargs):
+    async def _dispatch(
+        self,
+        obj_kw: list[Union[ObjectClass, Tuple[ObjectClass, dict]]],
+        **kwargs,
+    ):
         """
         [INTERNAL] Dispatches a list of object-kwargs pairs to async download tasks.
         """

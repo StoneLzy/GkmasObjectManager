@@ -6,11 +6,9 @@ General-purpose resource downloading.
 import re
 from email.utils import parsedate_to_datetime
 from pathlib import Path
-from queue import Queue
 from typing import Optional
 
 import requests
-from rich.progress import Progress
 
 from ..adv import GkmasAdventure
 from ..const import CHARACTER_ABBREVS, DEFAULT_DOWNLOAD_PATH, PathArgtype

@@ -10,7 +10,7 @@ import tempfile
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Union
 from zipfile import ZipFile, ZipInfo
 
 import UnityPy
@@ -57,7 +57,9 @@ class GkmasAWBAudio(GkmasDummyMedia):
         self.default_converted_format = "wav"
 
     @staticmethod
-    def _make_vgmstream_args(tmp_in: str, tmp_out: str, suffix: str) -> list:
+    def _make_vgmstream_args(
+        tmp_in: str, tmp_out: str, suffix: str
+    ) -> list[Union[str, Path]]:
         return [
             Path(__file__).parent.parent / f"bin/vgmstream/vgmstream-{suffix}",
             "-S",  # select subsongs
@@ -133,7 +135,9 @@ class GkmasACBAudio(GkmasAWBAudio):
     """Conversion plugin for ACB audio archive."""
 
     @staticmethod
-    def _make_vgmstream_args(tmp_in: str, tmp_out: str, suffix: str) -> list:
+    def _make_vgmstream_args(
+        tmp_in: str, tmp_out: str, suffix: str
+    ) -> list[Union[str, Path]]:
         return [
             Path(__file__).parent.parent / f"bin/vgmstream/vgmstream-{suffix}",
             "-S",
