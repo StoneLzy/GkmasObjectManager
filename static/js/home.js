@@ -1,5 +1,5 @@
 const WALLPAPER_REGEX_PATTERN =
-    /^img_general_(cidol.*1-thumb-landscape-large|(csprt|meishi_base).*full)$/;
+    /^img_general_(cidol.*1-thumb-landscape-large|(?:csprt|meishi_base(?!_master-ranking-)).*full)$/;
 const NUM_FEATURED_SAMPLES = 24;
 
 function populateHomepageContainers(data) {

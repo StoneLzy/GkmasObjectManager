@@ -87,12 +87,13 @@ class GkmasResource:
     def _media_class(self) -> type:
         if self.name.startswith("img_"):
             return GkmasImage
-        elif self.name.startswith("sud_") and self.name.endswith(".awb"):
-            return GkmasAWBAudio
-        elif self.name.startswith("sud_") and self.name.endswith(".acb"):
-            return GkmasACBAudio
         elif self.name.startswith("sud_"):
-            return GkmasAudio
+            if self.name.endswith(".awb"):
+                return GkmasAWBAudio
+            elif self.name.endswith(".acb"):
+                return GkmasACBAudio
+            else:
+                return GkmasAudio
         elif self.name.startswith("mov_"):
             return GkmasUSMVideo
         elif self.name.startswith("adv_"):
@@ -228,7 +229,7 @@ class GkmasResource:
             self._reporter.error(f"Invalid size: expected {self.size}, got {_size}")
 
         _md5 = md5sum(content).hex()
-        if _md5 != self.md5:
+        if self.md5 and _md5 != self.md5:
             self._reporter.error(f"Invalid MD5 hash: expected {self.md5}, got {_md5}")
 
         return {

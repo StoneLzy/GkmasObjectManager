@@ -69,7 +69,7 @@ def load(src: PathArgtype, base_revision: int = 0) -> GkmasManifest:
             json.loads(Path(src).read_text(encoding="utf-8")),
             base_revision,
         )
-    except json.JSONDecodeError:
+    except (UnicodeDecodeError, json.JSONDecodeError):
         enc = Path(src).read_bytes()
         try:
             return GkmasManifest(pdbytes2dict(enc), base_revision)
