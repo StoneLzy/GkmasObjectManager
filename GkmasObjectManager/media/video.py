@@ -24,8 +24,12 @@ class GkmasUSMVideo(GkmasDummyMedia):
                 "pipe:0",  # input bytestream
                 "-f",
                 self.converted_format,
-                "-preset",
-                "ultrafast",
+                "-c:v",
+                "copy",  # copy video stream without re-encoding
+                "-c:a",
+                "aac",  # was wavpack in source
+                "-b:a",
+                "1024k",  # highest possible
                 "-movflags",
                 "faststart+frag_keyframe",
                 # otherwise libx264 reports 'muxer does not support non seekable output'
