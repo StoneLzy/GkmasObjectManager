@@ -10,7 +10,7 @@ import tempfile
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
-from zipfile import ZipFile, ZipInfo
+from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
 from tqdm import tqdm
 
@@ -283,13 +283,12 @@ if __name__ == "__main__":
                 content += "".join([f"{f.name},{c}" for f, c in zip(samples, captions)])
                 zipf.writestr(ZipInfo("captions.csv"), content)
             for f in tqdm(samples, desc="Writing ZIP"):
-                zipf.writestr(
-                    ZipInfo(
-                        f.with_suffix(f".{args.format}").name,
-                        datetime.fromtimestamp(f.stat().st_mtime).timetuple(),
-                    ),
-                    sud_ch.read(f),
+                info = ZipInfo(
+                    f.with_suffix(f".{args.format}").name,
+                    datetime.fromtimestamp(f.stat().st_mtime).timetuple(),
                 )
+                info.compress_type = ZIP_DEFLATED
+                zipf.writestr(info, sud_ch.read(f))
 
     # ------------------------------ CLEANUP
 
