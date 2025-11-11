@@ -186,9 +186,6 @@ if __name__ == "__main__":
 
     # caching options
     parser.add_argument(
-        "-g", "--greedy", action="store_true", help="Search through all adventures"
-    )
-    parser.add_argument(
         "-d", "--cache-dir", type=str, default=".sovits-cache/", help="Cache directory"
     )
     parser.add_argument(
@@ -205,7 +202,6 @@ if __name__ == "__main__":
             [
                 f"sovits_dataset_v{m.revision.canon_repr}",
                 f"_{args.character}",
-                "_greedy" if args.greedy else "",
                 "_captioned" if args.caption else "",
                 f".{args.format}" if args.merge else ".zip",
             ]
@@ -229,8 +225,8 @@ if __name__ == "__main__":
 
     # ------------------------------ DOWNLOAD
 
-    target_adv = m.search(f"adv.*{'' if args.greedy else args.character}.*")
-    target_sud = m.search(f"sud_vo_adv.*{'' if args.greedy else args.character}.*")
+    target_adv = m.search(f"adv.*")
+    target_sud = m.search(f"sud_vo_adv.*")
     if not args.caption:
         target_sud += m.search(f"sud_vo.*{args.character}.*")
         # 'general' and 'system' voice samples don't have captions
