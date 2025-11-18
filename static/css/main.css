@@ -36,9 +36,9 @@ body {
     display: none;
 }
 
-.col-md-1-13 {
+.col-md-1-14 {
     flex: 0 0 auto;
-    width: calc(100% / 13);
+    width: calc(100% / 14);
 }
 
 /* General text */

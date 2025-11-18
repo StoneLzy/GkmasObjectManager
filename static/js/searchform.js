@@ -31,7 +31,7 @@ function buildFiltersMenu() {
 
     for (let alias in CHARACTER_ALIAS) {
         let name = CHARACTER_ALIAS[alias];
-        let column = $("<div>").addClass("col-md-1-13");
+        let column = $("<div>").addClass("col-md-1-14");
         let img = $("<img>")
             .attr("id", "filtersCharacterFigure")
             .attr("src", `/static/img/figure/${alias}.png`)

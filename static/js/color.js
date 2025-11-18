@@ -13,6 +13,7 @@ const ACCENT_COLORS = {
     "hume": "#F74C2C",
     "hmsz": "#6EA3FC",
     "jsna": "#FFAC28",
+    "atbm": "#8874FF",
     "nasr": "#8D6C71",
 };
 
