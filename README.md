@@ -49,6 +49,119 @@ m.download_preset("presets/namecard_kit.yml")
 
 
 
+## Helper Scripts
+
+If you already have a Conda environment for this project, run the helper scripts
+from the repository root with `conda run -n <env> python ...`.
+Examples below assume your environment is named `gakumas`.
+
+### `extract_card_images.py`
+
+Exports card images from the latest manifest.
+
+- Default output directory: `out/cards`
+- Default export format: `png`
+- If `--flat` is **not** set, files are placed into nested subdirectories under
+  `out/cards/` based on object names, such as
+  `out/cards/img/general/cidol-hski/...`
+- If `--flat` is set, matched files are written directly into `--out`
+
+Examples:
+
+```bash
+conda run -n gakumas python extract_card_images.py --idol hski --kind full --latest-only --dry-run
+conda run -n gakumas python extract_card_images.py --idol hski --kind full --latest-only --out out/hski
+conda run -n gakumas python extract_card_images.py --idol hski --kind portrait --out out/hski_portrait
+conda run -n gakumas python extract_card_images.py --kind support-full --latest-only --out out/support
+conda run -n gakumas python extract_card_images.py --pattern "img_general_cidol-hski.*full" --limit 5 --out out/custom
+```
+
+Common options:
+
+- `--idol`: idol short code such as `hski`, `ttmr`, `fktn`
+- `--kind`: one of `full`, `portrait`, `landscape`, `all`, `support-full`, `support-thumb`
+- `--out`: output directory, defaults to `out/cards`
+- `--format`: image format such as `png` or `jpeg`
+- `--resize`: optional resize ratio such as `9:16` or `16:9`
+- `--latest-only`: only export the newest matched object
+- `--limit N`: only export the newest `N` matches
+- `--flat`: disable nested subdirectories
+- `--dry-run`: list matches without downloading
+
+### `extract_dialogues.py`
+
+Exports dialogue scripts (`adv_*`) and voice archives (`sud_vo_adv_*`) from the latest manifest.
+
+- Default output directory: `out/dialogues`
+- If `--mode script`, scripts are written into `out/dialogues`
+- If `--mode voice`, voice files are written into `out/dialogues`
+- If `--mode both`, scripts go to `out/dialogues/scripts` and voices go to `out/dialogues/voices`
+- If `--captions` is set, a caption map is also written to `out/dialogues/captions.json`
+- If `--flat` is **not** set, exported files are further organized into nested subdirectories
+- If `--raw-script` is **not** set, scripts are converted to JSON
+- If `--raw-voice` is **not** set, voice archives are converted to audio files
+
+Examples:
+
+```bash
+conda run -n gakumas python extract_dialogues.py --idol hski --kind produce-story
+conda run -n gakumas python extract_dialogues.py --idol hski --kind produce-story --mode both --captions
+conda run -n gakumas python extract_dialogues.py --idol hski --kind dear --mode voice --audio-format mp3
+conda run -n gakumas python extract_dialogues.py --idol hski --kind idol-card --mode voice --raw-voice
+conda run -n gakumas python extract_dialogues.py --script-pattern "adv_pstory_001_hski_.*" --voice-pattern "sud_vo_adv_pstory_001_hski_.*" --mode both --latest-only --dry-run
+```
+
+Common options:
+
+- `--idol`: idol short code such as `hski`, `ttmr`, `fktn`
+- `--kind`: one of `produce-story`, `idol-card`, `dear`, `all-idol`, `event`, `unit`
+- `--mode`: `script`, `voice`, or `both`
+- `--out`: base output directory, defaults to `out/dialogues`
+- `--audio-format`: voice export format such as `wav` or `mp3`
+- `--raw-script`: export raw `.txt` scripts instead of parsed JSON
+- `--raw-voice`: export raw `.acb` archives instead of converted audio
+- `--keep-archive`: keep multi-track voice exports as `.zip` instead of unpacking them
+- `--captions`: export `captions.json` generated from matched scripts
+- `--latest-only`: only export the newest matched object on each side
+- `--limit N`: only export the newest `N` matches
+- `--flat`: disable nested subdirectories
+- `--dry-run`: list matches without downloading
+
+### `extract_latest_cidol_bundle.py`
+
+Exports the latest idol card image together with its matching `adv_cidol-*` scripts,
+`sud_vo_adv_cidol-*` voice lines, and a generated `captions.json`.
+
+- Default output directory: `out/latest_cidol_bundle`
+- The script creates a bundle subdirectory named after the resolved card story base,
+  for example `out/latest_cidol_bundle/cidol-hski-3-017/`
+- Card image goes to `.../card/`
+- Scripts go to `.../scripts/`
+- Voices go to `.../voices/`
+- Captions are written to `.../captions.json`
+- If `--idol` is omitted, the script uses the latest idol card across all idols
+
+Examples:
+
+```bash
+conda run -n gakumas python extract_latest_cidol_bundle.py --dry-run
+conda run -n gakumas python extract_latest_cidol_bundle.py --out out/latest_bundle
+conda run -n gakumas python extract_latest_cidol_bundle.py --idol hski --audio-format mp3
+conda run -n gakumas python extract_latest_cidol_bundle.py --idol ttmr --image-format jpeg --image-resize 9:16
+```
+
+Common options:
+
+- `--idol`: optional idol short code such as `hski`, `ttmr`, `fktn`
+- `--out`: base output directory, defaults to `out/latest_cidol_bundle`
+- `--image-format`: card image export format such as `png` or `jpeg`
+- `--image-resize`: optional card image resize ratio such as `9:16`
+- `--audio-format`: voice export format such as `wav` or `mp3`
+- `--raw-script`: export raw `.txt` scripts instead of parsed JSON
+- `--raw-voice`: export raw `.acb` voice archives instead of converted audio
+- `--keep-archive`: keep multi-track voice exports as `.zip` instead of unpacking them
+- `--dry-run`: only print the resolved latest card and related assets
+
 ## Class Hierarchy
 
 - `manifest.decrypt.AESCBCDecryptor` - Manifest decryption
