@@ -54,6 +54,11 @@ m.download_preset("presets/namecard_kit.yml")
 If you already have a Conda environment for this project, run the helper scripts
 from the repository root with `conda run -n <env> python ...`.
 Examples below assume your environment is named `gakumas`.
+If you need voice conversion, prefer a Python 3.10/3.11 environment.
+Python 3.14 commonly breaks `pydub` because `audioop` was removed there.
+On macOS, the bundled `vgmstream-mac` may also require Homebrew libraries such as
+`mpg123`, `libvorbis`, `libogg`, `ffmpeg`, and `speex`.
+If those are missing, voice export falls back to raw `.acb` archives.
 
 ### `extract_card_images.py`
 

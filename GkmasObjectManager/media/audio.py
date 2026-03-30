@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 media/audio.py
 AWB/ACB audio conversion plugin for GkmasResource,
@@ -10,13 +12,28 @@ import tempfile
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
-from typing import Tuple, Union
+from typing import TYPE_CHECKING, Tuple, Union
 from zipfile import ZipFile, ZipInfo
 
 import UnityPy
-from pydub import AudioSegment
 
 from .dummy import GkmasDummyMedia
+
+if TYPE_CHECKING:
+    from pydub import AudioSegment
+
+
+def _require_audio_segment():
+    try:
+        from pydub import AudioSegment
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            "Audio conversion requires pydub and a Python build that still provides "
+            "'audioop' or an installed 'pyaudioop' fallback. Python 3.14 commonly "
+            "fails here, so prefer the Conda 'gakumas' environment (Python 3.10), "
+            "or export raw voice archives with convert_audio=False / --raw-voice."
+        ) from exc
+    return AudioSegment
 
 
 class GkmasAudio(GkmasDummyMedia):
@@ -27,6 +44,7 @@ class GkmasAudio(GkmasDummyMedia):
         self.raw_format = self.ext
 
     def _convert(self, raw: bytes) -> bytes:
+        AudioSegment = _require_audio_segment()
         audio = AudioSegment.from_file(BytesIO(raw))
         return audio.export(format=self.converted_format).read()
 
@@ -79,6 +97,7 @@ class GkmasAWBAudio(GkmasDummyMedia):
         return self._write_segments(segments)
 
     def _read_segments(self, raw: bytes) -> list[Tuple[str, AudioSegment]]:
+        AudioSegment = _require_audio_segment()
 
         segments = []
         success = False

@@ -75,7 +75,13 @@ def export_voices(
         else:
             kwargs["audio_format"] = audio_format
             kwargs["unpack_subsongs"] = not keep_archive
-        obj.download(**kwargs)
+        try:
+            obj.download(**kwargs)
+        except Exception as exc:
+            print(
+                f"Voice conversion failed for {obj.name}; raw archive fallback was kept if possible. "
+                f"Reason: {exc}"
+            )
 
 
 def export_captions(scripts: list, output_path: Path) -> None:
